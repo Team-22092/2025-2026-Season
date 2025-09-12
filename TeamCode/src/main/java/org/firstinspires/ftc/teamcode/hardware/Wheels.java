@@ -38,7 +38,7 @@ public class Wheels {
              |
              |
              +--------→ x (strafe, left/right)
-            /
+            /0
            /
           ↓
          y (drive, forward/back) */

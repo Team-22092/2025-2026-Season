@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.hardware.LimeLight;
 import org.firstinspires.ftc.teamcode.hardware.Wheels;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
     //Gamepad prevGamepadCopilot = new Gamepad(); //Gamepad 2 last frame input, used for buttons (like a toggle)
 
     Wheels wheels; //Get the wheels, this is a secondary func in HardWare.
+    LimeLight limeLight;
 
     @Override
     public void init()
@@ -31,6 +33,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
         wheels = new Wheels(hardwareMap); //new hardware map for wheels.
 
+        limeLight = new LimeLight(hardwareMap, telemetry); //Get the Limelight
 
 
 
@@ -72,6 +75,13 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         wheels.ManualDrive(currentGamepadDrive);
 
 
+        //LIMELIGHTPULL
+
+        limeLight.LimeLightOpMode(telemetry);
+
+
+
+
         //TODO - STATE MACHINE GOES HERE.
 
 
@@ -82,6 +92,12 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
 
         //update telem, for side classes
+
+
+        //Do telem
+
+        limeLight.Display_Telemetry(telemetry); //Limelight Telem
+
 
         telemetry.update();
 
