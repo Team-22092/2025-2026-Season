@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad; // Gets gamepad, and buttons
 import com.qualcomm.robotcore.hardware.HardwareMap; //Gets hardware
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
 //Going to be used for auto, uncomment then.
@@ -130,14 +131,54 @@ public class Wheels {
         else{ //Slow mode not pressed, motors run at almost full speed
 
             //[0] is LF, [1] is RF, [2] is BL, and [3] is BR
-            Front_Left_Wheel.setPower(speeds[0] * MotorGlobalSpeed);
-            Front_Right_Wheel.setPower(speeds[1] * MotorGlobalSpeed);;
-            Back_Left_Wheel.setPower(speeds[2] * MotorGlobalSpeed);
-            Back_Right_Wheel.setPower(speeds[3] * MotorGlobalSpeed);
+            Front_Left_Wheel.setPower(speeds[0] * MotorGlobalSpeed); //SLOWDOWN WITH GLOBAL MOTOR SPEED 100% is too fast
+            Front_Right_Wheel.setPower(speeds[1] * MotorGlobalSpeed);; //SLOWDOWN WITH GLOBAL MOTOR SPEED 100% is too fast
+            Back_Left_Wheel.setPower(speeds[2] * MotorGlobalSpeed); //SLOWDOWN WITH GLOBAL MOTOR SPEED 100% is too fast
+            Back_Right_Wheel.setPower(speeds[3] * MotorGlobalSpeed); //SLOWDOWN WITH GLOBAL MOTOR SPEED 100% is too fast
         }
 
 
     } //end of Manual Drive
+
+
+    //TODO - Use LimeLightLineUPTest before this.
+    double kp = 0.02; //needs to be adjusted on the robot
+    double yawTolerance = 1; //How much the range needs to be
+    public void LimeLightLineUP(double yaw) //Auto Line up funct
+    {
+        if(!Double.isNaN(yaw)) //makes sure that the yaw is not a NAN val
+        {
+            double Yerror = yaw; //error of the yaw
+
+            if(Math.abs(Yerror) > yawTolerance) { //gets a range, but this historically has not worked in ftc for some reason, so i might have to do this manually
+                double power = kp * Yerror; //this figures out what way to turn (+ or -)
+                power = Math.max(Math.min(power, 0.5), -0.5); // we figure out if we need +Power or -Power //TODO - The issue is that 50% might be too much.
+                Turn = (-power); //TODO this is def wrong this part, needs to be fixed
+            }
+        }
+    } //end of Lime Light Line UP
+
+
+
+
+
+
+    //THIS IS A TEST SCRIPT FOR SAFE LINE UP, DO NOT USE IN PRODUCTION.
+    public void LimeLightLineUPTest(double yaw, Telemetry telemetry)
+    {
+        //This is for testing for manual turning btw.
+
+        if(!Double.isNaN(yaw)){ //check to make sure the yaw isn't NAN
+            if(yaw > yawTolerance){ //if the yaw (turn, is bigger than the buffer)
+                telemetry.addData("Move: ", "LEFT");
+            } else if (yaw < yawTolerance){ //if the yaw (turn, is less than the buffer)
+                telemetry.addData("Move: ", "RIGHT");
+            }
+            else{ //if the yaw (don't turn, is bigger than the buffer)
+                telemetry.addData("MOVE: ", "CENTERED");
+            }
+        }
+    } //end of Lime Light Line UP Test
 
 
 

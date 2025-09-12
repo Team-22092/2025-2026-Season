@@ -72,12 +72,13 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
         //Run the drive
         //TODO - DEFINE DIFFERENT PARTS OF THE ROBOT
-        wheels.ManualDrive(currentGamepadDrive);
+        wheels.ManualDrive(currentGamepadDrive); //Drive code --DO NOT REMOVE
 
 
         //LIMELIGHTPULL
 
-        limeLight.LimeLightOpMode(telemetry);
+        //TODO - Will need to be updated
+        limeLight.LimeLightOpMode(telemetry); //Pull the Yaw for the AprilTag, and display.
 
 
 
@@ -96,7 +97,9 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
         //Do telem
 
-        limeLight.Display_Telemetry(telemetry); //Limelight Telem
+
+
+        limeLight.Display_Telemetry(telemetry); //DISPLAY LIMELIGHT TELEM
 
 
         telemetry.update();
