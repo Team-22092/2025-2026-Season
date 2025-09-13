@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.hardware.LimeLight;
+import org.firstinspires.ftc.teamcode.hardware.ShootWheels;
 import org.firstinspires.ftc.teamcode.hardware.Wheels;
 
 import java.util.List;
@@ -22,8 +23,9 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
     //Gamepad prevGamepadCopilot = new Gamepad(); //Gamepad 2 last frame input, used for buttons (like a toggle)
 
     Wheels wheels; //Get the wheels, this is a secondary func in HardWare.
-    LimeLight limeLight;
+    LimeLight limeLight; //Get the Limelight
 
+    ShootWheels shootWheels; //Get the outtake wheels, this is a secondary func in HardWare.
     @Override
     public void init()
     {
@@ -35,7 +37,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
         limeLight = new LimeLight(hardwareMap, telemetry); //Get the Limelight
 
-
+        shootWheels = new ShootWheels(hardwareMap);
 
 
 
@@ -75,6 +77,9 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         wheels.ManualDrive(currentGamepadDrive); //Drive code --DO NOT REMOVE
 
 
+        //Run the shoot
+        shootWheels.ShootWheelsOpMode(currentGamepadCopilot); //Gets the copilot buttons and sends it to spin the motors
+
         //LIMELIGHTPULL
 
         //TODO - Will need to be updated
@@ -108,7 +113,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
     }
 
-
+    //TODO - Add stop funct
 
 
 
