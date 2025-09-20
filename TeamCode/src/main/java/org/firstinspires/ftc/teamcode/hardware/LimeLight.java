@@ -18,27 +18,6 @@ import java.util.List;
 
 
 
-//TODO - For Testing
-
-//BUILD TEST BOT
-
-//DRIVE TEST
-
-//THE LIMELIGHT NEEDS TO BE MOUNTED AND CONNECTED.
-
-//TEST IF THE YAW WORKS WHEN IT DETECTS, AND FIX ANY BUGS
-
-//START WITH A BASIC TEXT TELLING WHAT WAY TO ROTATE THROUGH TELEM TO SEE IF ITS GONNA WORK
-
-//ADD MOTORS
-
-
-//BLOCK SOME QR CODES THAT COULD INTERFERE (1, 2, 3)
-
-
-
-
-
 
 
 
@@ -117,23 +96,43 @@ public class LimeLight {
                 //print the id
                 telemetry.addData("ID", fr.getFiducialId()); //TODO - REMOVE THIS LATER
 
-                Pose3D pose = fr.getRobotPoseTargetSpace(); //Get the Pos of the TAG
-                Pose3D tagPoseCamera = fr.getTargetPoseCameraSpace(); // Get the Camera Pos
 
-                if(pose != null) // Skip if the data is werid
+
+                //Define the patterns
+                if(fr.getFiducialId() == 23)
                 {
-                    double yaw = pose.getOrientation().getYaw(); //Get the one direction we care about, yaw
-
-                   // double xPos = pose.getPosition().x; //Get the X Pos for lining up
-
-                    //TODO ------ tagX and offsetX prob isn't going to be needed.
-                   // double tagX = tagPoseCamera.getPosition().x; //Cam X Pos
-
-                   // double offsetX = xPos - tagX; // Figure out offset
-
-
-                    telemetry.addData("Yaw", "%.2f", yaw); //TODO - REMOVE THIS LATER
+                    telemetry.addData("Pattern", "[Purple] [Purple] [Green]");
                 }
+                else if(fr.getFiducialId() == 21)
+                {
+                    telemetry.addData("Pattern", "[Green] [Purple] [Purple]");
+                }
+                else if(fr.getFiducialId() == 22)
+                {
+                    telemetry.addData("Pattern", "[Purple] [Green] [Purple]");
+                }
+                else{
+
+                    Pose3D pose = fr.getRobotPoseTargetSpace(); //Get the Pos of the TAG
+                    Pose3D tagPoseCamera = fr.getTargetPoseCameraSpace(); // Get the Camera Pos
+
+                    if(pose != null) // Skip if the data is werid
+                    {
+                        double yaw = pose.getOrientation().getYaw(); //Get the one direction we care about, yaw
+
+                        double xPos = pose.getPosition().x; //Get the X Pos for lining up
+
+                        //TODO ------ tagX and offsetX prob isn't going to be needed.
+                        double tagX = tagPoseCamera.getPosition().x; //Cam X Pos
+
+                        double offsetX = xPos - tagX; // Figure out offset
+
+                        telemetry.addData("HowFarAway", offsetX);
+                        telemetry.addData("Yaw", "%.2f", yaw); //TODO - REMOVE THIS LATER
+                    }
+
+                }
+
 
 
             }

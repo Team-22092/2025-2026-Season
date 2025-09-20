@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 public class ShootWheels {
 
     private DcMotor LeftWheel, RightWheel; //Left and right wheels
@@ -17,6 +19,8 @@ public class ShootWheels {
 
     public ShootWheels(HardwareMap hardwareMap)
     {
+        this.hardwareMap = hardwareMap; // fix's an error
+
         RightWheel = this.hardwareMap.get(DcMotor.class, "ShootR"); //Right wheel name set
         LeftWheel = this.hardwareMap.get(DcMotor.class, "ShootL"); //Left wheel name set
 
@@ -27,26 +31,27 @@ public class ShootWheels {
 
         //TODO - Figure out what way the wheels to spin
         RightWheel.setDirection(DcMotor.Direction.FORWARD); // Spins forward (shooting)
-        LeftWheel.setDirection(DcMotor.Direction.FORWARD); // Spins backward (shooting)
+        LeftWheel.setDirection(DcMotor.Direction.REVERSE); // Spins backward (shooting)
 
     }// end of Shoot Wheels
 
 
     public void ShootWheelsOpMode(Gamepad gamepadTwo)
     {
-        if(gamepadTwo.a)
-        {
+
             //TODO - Will add a way to change the speed automatically
             RightWheel.setPower(speed);
             LeftWheel.setPower(speed);;
-        }
-        else if(!gamepadTwo.a){
-            //Set it to idle speed, at a speed like 0.2f (20%)
-            RightWheel.setPower(0.2);
-            LeftWheel.setPower(0.2);;
-        }
+
+
 
     } //End of Shoot Wheels
+
+
+    public void Display_Telemetry(Telemetry telemetry, Gamepad gamepadTwo)
+    {
+        telemetry.addData("Is A Key Pressed:", gamepadTwo.a);
+    }
 
 
     //Dont need telem, so we leave it out.

@@ -25,7 +25,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
     Wheels wheels; //Get the wheels, this is a secondary func in HardWare.
     LimeLight limeLight; //Get the Limelight
 
-    ShootWheels shootWheels; //Get the outtake wheels, this is a secondary func in HardWare.
+   // ShootWheels shootWheels; //Get the outtake wheels, this is a secondary func in HardWare.
     @Override
     public void init()
     {
@@ -33,11 +33,13 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
         //DEFINE ANY HARDWARE MAPS BELOW.
 
+        //TODO - Uncomment
         wheels = new Wheels(hardwareMap); //new hardware map for wheels.
+        //TODO - Uncomment
 
-        limeLight = new LimeLight(hardwareMap, telemetry); //Get the Limelight
+         limeLight = new LimeLight(hardwareMap, telemetry); //Get the Limelight
 
-        shootWheels = new ShootWheels(hardwareMap);
+//        shootWheels = new ShootWheels(hardwareMap);
 
 
 
@@ -60,7 +62,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
     @Override
     public void loop() //Main loop
     {
-        //Define Gamepads
+        //Define Gamepads //TODO - Uncomment
        currentGamepadDrive.copy(gamepad1);
        currentGamepadCopilot.copy(gamepad2);
 
@@ -74,16 +76,20 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
         //Run the drive
         //TODO - DEFINE DIFFERENT PARTS OF THE ROBOT
-        wheels.ManualDrive(currentGamepadDrive); //Drive code --DO NOT REMOVE
+
+         wheels.ManualDrive(currentGamepadDrive); //Drive code --DO NOT REMOVE
 
 
         //Run the shoot
-        shootWheels.ShootWheelsOpMode(currentGamepadCopilot); //Gets the copilot buttons and sends it to spin the motors
+     //   shootWheels.ShootWheelsOpMode(currentGamepadCopilot); //Gets the copilot buttons and sends it to spin the motors
 
         //LIMELIGHTPULL
+//
+//        //TODO - Will need to be updated
 
-        //TODO - Will need to be updated
-        limeLight.LimeLightOpMode(telemetry); //Pull the Yaw for the AprilTag, and display.
+
+
+            limeLight.LimeLightOpMode(telemetry); //Pull the Yaw for the AprilTag, and display.
 
 
 
@@ -103,9 +109,11 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         //Do telem
 
 
-
+        //TODO - Uncomment
         limeLight.Display_Telemetry(telemetry); //DISPLAY LIMELIGHT TELEM
 
+        //TODO - Uncomment
+       // shootWheels.Display_Telemetry(telemetry, gamepad2);
 
         telemetry.update();
 

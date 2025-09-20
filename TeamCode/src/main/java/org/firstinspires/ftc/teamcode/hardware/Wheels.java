@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.hardware; //Import hardware (wire mapping)
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor; // Motor func
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad; // Gets gamepad, and buttons
@@ -13,6 +14,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 //import com.acmerobotics.dashboard.config.Config;
 //@Config
+
+@Disabled
 public class Wheels {
     public static Double SLOW_MODE_SPEED = 0.33; //0.33 is 33% of the motor's max power.
 
@@ -52,6 +55,9 @@ public class Wheels {
 
     //USED IN teleopMAIN.java
     public Wheels(HardwareMap hardwareMap) {
+
+        this.hardwareMap = hardwareMap; // fix's an error
+
         Front_Left_Wheel = this.hardwareMap.get(DcMotor.class, "FL"); // Front Left Motor is set to LF as the string identifier
         Front_Right_Wheel = this.hardwareMap.get(DcMotor.class, "FR"); // Front Right Motor is set to LR as the string identifier
         Back_Left_Wheel = this.hardwareMap.get(DcMotor.class, "BL"); // Back Left Motor is set to BL as the string identifier
