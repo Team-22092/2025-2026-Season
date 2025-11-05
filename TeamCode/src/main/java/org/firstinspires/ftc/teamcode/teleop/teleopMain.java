@@ -22,10 +22,10 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
     Gamepad currentGamepadCopilot = new Gamepad(); //Gamepad 2, of current inputs
     //Gamepad prevGamepadCopilot = new Gamepad(); //Gamepad 2 last frame input, used for buttons (like a toggle)
 
-    Wheels wheels; //Get the wheels, this is a secondary func in HardWare.
-    LimeLight limeLight; //Get the Limelight
+    //Wheels wheels; //Get the wheels, this is a secondary func in HardWare.
+    public LimeLight limeLight; //Get the Limelight
 
-   // ShootWheels shootWheels; //Get the outtake wheels, this is a secondary func in HardWare.
+   //ShootWheels shootWheels; //Get the outtake wheels, this is a secondary func in HardWare.
     @Override
     public void init()
     {
@@ -34,12 +34,12 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         //DEFINE ANY HARDWARE MAPS BELOW.
 
         //TODO - Uncomment
-        wheels = new Wheels(hardwareMap); //new hardware map for wheels.
+       // wheels = new Wheels(hardwareMap); //new hardware map for wheels.
         //TODO - Uncomment
 
          limeLight = new LimeLight(hardwareMap, telemetry); //Get the Limelight
 
-//        shootWheels = new ShootWheels(hardwareMap);
+     //shootWheels = new ShootWheels(hardwareMap);
 
 
 
@@ -77,11 +77,14 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         //Run the drive
         //TODO - DEFINE DIFFERENT PARTS OF THE ROBOT
 
-         wheels.ManualDrive(currentGamepadDrive); //Drive code --DO NOT REMOVE
+    //     wheels.ManualDrive(currentGamepadDrive); //Drive code --DO NOT REMOVE
 
 
         //Run the shoot
-     //   shootWheels.ShootWheelsOpMode(currentGamepadCopilot); //Gets the copilot buttons and sends it to spin the motors
+
+       // shootWheels.ShootWheelsOpMode(currentGamepadCopilot);
+
+          //Gets the copilot buttons and sends it to spin the motors
 
         //LIMELIGHTPULL
 //
@@ -113,7 +116,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         limeLight.Display_Telemetry(telemetry); //DISPLAY LIMELIGHT TELEM
 
         //TODO - Uncomment
-       // shootWheels.Display_Telemetry(telemetry, gamepad2);
+      //  shootWheels.Display_Telemetry(telemetry, gamepad2);
 
         telemetry.update();
 

@@ -9,11 +9,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class ShootWheels {
 
-    private DcMotor LeftWheel, RightWheel; //Left and right wheels
+    private DcMotor WHEEL; //Left and right wheels
 
     HardwareMap hardwareMap;
 
-    private double speed = 1; // DCMOTOR Left and Right Wheel speeds.
+
+    // Telemetry limelightTelem; //Used to prevent error, nothing else
 
 
 
@@ -21,27 +22,35 @@ public class ShootWheels {
     {
         this.hardwareMap = hardwareMap; // fix's an error
 
-        RightWheel = this.hardwareMap.get(DcMotor.class, "ShootR"); //Right wheel name set
-        LeftWheel = this.hardwareMap.get(DcMotor.class, "ShootL"); //Left wheel name set
+       // limeLight = new LimeLight(hardwareMap, limelightTelem);
 
 
-        RightWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //Don't Use the Built in Encoders
-        LeftWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //Don't Use the Built in Encoders
+
+        WHEEL = this.hardwareMap.get(DcMotor.class, "WHEEL"); //Right wheel name set
+        //LeftWheel = this.hardwareMap.get(DcMotor.class, "ShootL"); //Left wheel name set
+
+
+        WHEEL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //Don't Use the Built in Encoders
+        //LeftWheel.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //Don't Use the Built in Encoders
 
 
         //TODO - Figure out what way the wheels to spin
-        RightWheel.setDirection(DcMotor.Direction.FORWARD); // Spins forward (shooting)
-        LeftWheel.setDirection(DcMotor.Direction.REVERSE); // Spins backward (shooting)
+        WHEEL.setDirection(DcMotor.Direction.REVERSE); // Spins forward (shooting)
+//        LeftWheel.setDirection(DcMotor.Direction.REVERSE); // Spins backward (shooting)
 
     }// end of Shoot Wheels
 
 
     public void ShootWheelsOpMode(Gamepad gamepadTwo)
     {
+        //WHEEL.setPower(0.8);
 
             //TODO - Will add a way to change the speed automatically
-            RightWheel.setPower(speed);
-            LeftWheel.setPower(speed);;
+
+
+//                LeftWheel.setPower(1);
+
+
 
 
 
@@ -52,6 +61,9 @@ public class ShootWheels {
     {
         telemetry.addData("Is A Key Pressed:", gamepadTwo.a);
     }
+
+
+
 
 
     //Dont need telem, so we leave it out.

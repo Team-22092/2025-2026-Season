@@ -8,19 +8,27 @@ buildscript {
     repositories {
         mavenCentral()
         google()
+
+        maven {
+            url "https://repo.dairy.foundation/releases"
+        }
     }
+
     dependencies {
         // Note for FTC Teams: Do not modify this yourself.
         classpath 'com.android.tools.build:gradle:8.7.0'
+        classpath "dev.frozenmilk:Load:0.2.4"
     }
 }
 
-// This is now required because aapt2 has to be downloaded from the
-// google() repository beginning with version 3.2 of the Android Gradle Plugin
+
 allprojects {
     repositories {
         mavenCentral()
         google()
+
+        maven { url "https://repo.dairy.foundation/releases" }
+        maven { url "https://repo.dairy.foundation/snapshots" }
     }
 }
 
