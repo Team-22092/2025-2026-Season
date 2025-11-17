@@ -6,9 +6,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.hardware.Flick;
 import org.firstinspires.ftc.teamcode.hardware.LimeLight;
 import org.firstinspires.ftc.teamcode.hardware.ShootWheels;
 import org.firstinspires.ftc.teamcode.hardware.Wheels;
+import org.firstinspires.ftc.teamcode.hardware.Intake;
+import org.firstinspires.ftc.teamcode.hardware.Sort;
 
 import java.util.List;
 
@@ -20,12 +23,17 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
     //Gamepad prevGamepadDrive = new Gamepad(); //Gamepad 1 last frame input, used for buttons (like a toggle)
 
     Gamepad currentGamepadCopilot = new Gamepad(); //Gamepad 2, of current inputs
-    //Gamepad prevGamepadCopilot = new Gamepad(); //Gamepad 2 last frame input, used for buttons (like a toggle)
+    Gamepad prevGamepadCopilot = new Gamepad(); //Gamepad 2 last frame input, used for buttons (like a toggle)
 
-    //Wheels wheels; //Get the wheels, this is a secondary func in HardWare.
+    Wheels wheels; //Get the wheels, this is a secondary func in HardWare.
+    Intake intake;
+
+    Sort sort;
     public LimeLight limeLight; //Get the Limelight
 
-   //ShootWheels shootWheels; //Get the outtake wheels, this is a secondary func in HardWare.
+    public Flick flick;
+
+    ShootWheels shootWheels; //Get the outtake wheels, this is a secondary func in HardWare.
     @Override
     public void init()
     {
@@ -34,12 +42,17 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         //DEFINE ANY HARDWARE MAPS BELOW.
 
         //TODO - Uncomment
-       // wheels = new Wheels(hardwareMap); //new hardware map for wheels.
+       wheels = new Wheels(hardwareMap); //new hardware map for wheels.
+        intake = new Intake(hardwareMap);
+
+        sort = new Sort(hardwareMap);
+
+        flick = new Flick(hardwareMap);
         //TODO - Uncomment
 
-         limeLight = new LimeLight(hardwareMap, telemetry); //Get the Limelight
+        limeLight = new LimeLight(hardwareMap, telemetry); //Get the Limelight
 
-     //shootWheels = new ShootWheels(hardwareMap);
+        shootWheels = new ShootWheels(hardwareMap);
 
 
 
@@ -70,19 +83,22 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
         //This is for our last frame gamepads
 //        prevGamepadDrive.copy(currentGamepadDrive);
-//        prevGamepadCopilot.copy(currentGamepadCopilot);
+
 
 
 
         //Run the drive
         //TODO - DEFINE DIFFERENT PARTS OF THE ROBOT
 
-    //     wheels.ManualDrive(currentGamepadDrive); //Drive code --DO NOT REMOVE
+        wheels.ManualDrive(currentGamepadDrive); //Drive code --DO NOT REMOVE
+        intake.IntakeOpMode(currentGamepadCopilot);
+        sort.SortOpMode(currentGamepadCopilot, prevGamepadCopilot);
+        flick.FlickOpMode(currentGamepadCopilot, prevGamepadCopilot);
 
 
         //Run the shoot
 
-       // shootWheels.ShootWheelsOpMode(currentGamepadCopilot);
+       shootWheels.ShootWheelsOpMode(currentGamepadCopilot, prevGamepadCopilot, limeLight);
 
           //Gets the copilot buttons and sends it to spin the motors
 
@@ -92,7 +108,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
 
 
-            limeLight.LimeLightOpMode(telemetry); //Pull the Yaw for the AprilTag, and display.
+        limeLight.LimeLightOpMode(telemetry); //Pull the Yaw for the AprilTag, and display.
 
 
 
@@ -116,11 +132,13 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         limeLight.Display_Telemetry(telemetry); //DISPLAY LIMELIGHT TELEM
 
         //TODO - Uncomment
-      //  shootWheels.Display_Telemetry(telemetry, gamepad2);
+        shootWheels.Display_Telemetry(telemetry);
+
+        sort.SortTelem(telemetry);
 
         telemetry.update();
 
-
+        prevGamepadCopilot.copy(currentGamepadCopilot);
 
     }
 

@@ -1,48 +1,46 @@
 //
-// build.gradle in TeamCode
+// build.gradle in TeamCode (Sloth removed)
 //
 
-// Most of the definitions for building your module reside in a common, shared
-// file 'build.common.gradle'. Being factored in this way makes it easier to
-// integrate updates to the FTC into your code. If you really need to customize
-// the build definitions, you can place those customizations in this file, but
-// please think carefully as to whether such customizations are really necessary
-// before doing so.
+// Most build logic is kept in shared files so FTC updates are easier to integrate.
+// Keep changes here minimal and intentional.
 
-// Custom definitions may go here
-
-// Include common definitions from above.
+// Pull in the shared build logic used across modules.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
-apply plugin: 'dev.frozenmilk.sinister.sloth.load'
-
+// NOTE: removed apply plugin: 'dev.frozenmilk.sinister.sloth.load' (Sloth plugin removed)
 
 repositories {
-    mavenCentral()
     google()
-    maven { url = "https://repo.dairy.foundation/releases" }   // Sloth & related artifacts
-    maven { url = "https://repo.dairy.foundation/snapshots" }  // optional but helpful for some versions
+    mavenCentral()
+    // removed dairy.foundation (hosted Sloth/slothboard)
+    // kept brott.dev only if you need it
+    maven { url = 'https://maven.brott.dev/' }
 }
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
     packagingOptions {
+        // keep legacy packaging for JNI libs (FTC historically expects this)
         jniLibs.useLegacyPackaging true
     }
 }
 
 dependencies {
     implementation project(':FtcRobotController')
-    implementation("dev.frozenmilk.sinister:Sloth:0.2.4")
-    implementation("com.acmerobotics.slothboard:dashboard:0.2.4+0.4.17") // Sloth Dashboard
+
+    // Removed all Sloth / slothboard dependencies
+
+    // Official Acme Robotics Dashboard (keep current official release)
+    implementation "com.acmerobotics.dashboard:dashboard:0.5.1"
+    implementation "com.acmerobotics.dashboard:core:0.5.1"
+
+    // Roadrunner libs
+    implementation "com.acmerobotics.roadrunner:ftc:0.1.25"
+    implementation "com.acmerobotics.roadrunner:core:1.0.1"
+    implementation "com.acmerobotics.roadrunner:actions:1.0.1"
 }
 
-//Use when adding roadrunner
-/* implementation("com.pedropathing:pedro:1.0.8") {
-    exclude group: "com.acmerobotics.dashboard"
-};///
-implementation("com.acmerobotics.roadrunner:ftc:0.1.21") {
-    exclude group: "com.acmerobotics.dashboard"
-} */
-
+// If you later add libraries that historically included slothboard transitively,
+// exclude 'com.acmerobotics.slothboard' from those dependencies.

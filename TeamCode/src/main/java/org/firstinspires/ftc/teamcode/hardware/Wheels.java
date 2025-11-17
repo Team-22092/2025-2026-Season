@@ -31,7 +31,7 @@ public class Wheels {
     double[] speeds = new double[4]; //Speeds for 4 motors.
 
 
-    double MotorGlobalSpeed = 0.5; //this is half speed (higher is faster so 0.6 > 0.3)
+    double MotorGlobalSpeed = 1; //this is half speed (higher is faster so 0.6 > 0.3)
 
 
 
@@ -74,10 +74,10 @@ public class Wheels {
 
 
         //Set direction, so Reverse sets left to be the considered "Forward" and right to be "Backword", and Forward sets right to be considered "Forward" and right to be "Backword"
-        Front_Left_Wheel.setDirection(DcMotor.Direction.REVERSE); //Because this is flipped on the Robot frame, it needs to be set to reverse
-        Front_Right_Wheel.setDirection(DcMotor.Direction.FORWARD); //Not Flipped
-        Back_Left_Wheel.setDirection(DcMotor.Direction.REVERSE); //Because this is flipped on the Robot frame, it needs to be set to reverse
-        Back_Right_Wheel.setDirection(DcMotor.Direction.FORWARD); //Not Flipped
+        Front_Left_Wheel.setDirection(DcMotor.Direction.FORWARD); //Because this is flipped on the Robot frame, it needs to be set to reverse
+        Front_Right_Wheel.setDirection(DcMotor.Direction.REVERSE); //Not Flipped
+        Back_Left_Wheel.setDirection(DcMotor.Direction.FORWARD); //Because this is flipped on the Robot frame, it needs to be set to reverse
+        Back_Right_Wheel.setDirection(DcMotor.Direction.REVERSE); //Not Flipped
 
 
     } //end of Wheels

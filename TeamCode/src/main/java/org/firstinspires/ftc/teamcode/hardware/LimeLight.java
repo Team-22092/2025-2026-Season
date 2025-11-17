@@ -35,7 +35,7 @@ public class LimeLight {
     private DcMotor limelight_detector;
 
     private IMU imu;
-    double distance;
+    public double distance = 0;
 
 
 
@@ -46,7 +46,7 @@ public class LimeLight {
         //set hardware map
         limelight = hardwareMap.get(Limelight3A.class, "limelight"); //the hardware map is setting the name.
         //MOTOR FOR SHOOTING
-        limelight_detector = hardwareMap.get(DcMotor.class, "LLD");
+        //limelight_detector = hardwareMap.get(DcMotor.class, "LLD");
 
 
 
@@ -102,100 +102,64 @@ public class LimeLight {
 
 
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults(); //LL Result types is latest results from the camera, the FiducialResults is valid april tags, and we have a list of them.
-            if(!fiducials.isEmpty()) { //skip if theres no tags detected, but if there is, keep going
+            if (!fiducials.isEmpty()) { //skip if theres no tags detected, but if there is, keep going
                 LLResultTypes.FiducialResult fr = fiducials.get(0); //get the first valid tag from the camera
                 //print the id
                 telemetry.addData("ID", fr.getFiducialId()); //TODO - REMOVE THIS LATER
                 //Define the patterns
-                if(fr.getFiducialId() == 23)
-                {telemetry.addData("Pattern", "[Purple] [Purple] [Green]");}
-                else if(fr.getFiducialId() == 21) {
-                    telemetry.addData("Pattern", "[Green] [Purple] [Purple]");}
-                else if(fr.getFiducialId() == 22) {
-                    telemetry.addData("Pattern", "[Purple] [Green] [Purple]");}
-                else{
-
-
-
-
-
-
-
-
-
-                    //IF its not the main ones we look for:
-
-
-
-                    if(limelight != null && result.isValid()) // Skip if the data is weird
-                    {
-
-                        Pose3D pose = result.getBotpose(); //Get the Pos of the TAG
-                       //Pose3D tagPoseCamera = fr.getTargetPoseCameraSpace(); // Get the Camera Pos
-
-                        telemetry.addData("Tx", result.getTx());
-                        telemetry.addData("Ty", result.getTy());
-                        telemetry.addData("Ta", result.getTa());
-
-
-//
-//
-                        double yaw = pose.getOrientation().getYaw(); //Get the one direction we care about, yaw
-//
-//                        distance = Math.sqrt(x*x + y*y + z*z); // Euclidean distance
-//                        telemetry.addData("Distance (m)", distance);
-
-                       // spinspeed = testshoot.velocity(distance, 45, 6000);
-
-//
-                        telemetry.addData("Yaw", "%.2f", yaw); //TODO - REMOVE THIS LATER
-                        telemetry.addData("ERROR", "%.2f", clamp(result.getTx(), -1, 1)); //TODO - REMOVE THIS LATER
-//                        telemetry.addData("Roll", "%.2f", roll); //TODO - REMOVE THIS LATER
-
-
-                        double tolerance = 1.0;     // how close to center before we stop
-
-                        if (result.getTx() > tolerance) {
-                            // target is to the right, turn right
-                            limelight_detector.setPower(0.3);
-                        }
-                        else if (result.getTx() < -tolerance) {
-                            // target is to the left, turn left
-                            limelight_detector.setPower(-0.3);
-                        }
-                        else {
-                            // within tolerance -> stop
-                            limelight_detector.setPower(0);
-                        }
-
-
-
-                    }
-
+                if (fr.getFiducialId() == 23) {
+                    telemetry.addData("Pattern", "[Purple] [Purple] [Green]");
+                } else if (fr.getFiducialId() == 21) {
+                    telemetry.addData("Pattern", "[Green] [Purple] [Purple]");
+                } else if (fr.getFiducialId() == 22) {
+                    telemetry.addData("Pattern", "[Purple] [Green] [Purple]");
+                } else if (fr.getFiducialId() == 24) {
+                    distance = computeDistanceToFiducial(fr); // meter
+                    telemetry.addData("Dist", "%.2f", distance);
+                } else if (fr.getFiducialId() == 25){
+                    distance = computeDistanceToFiducial(fr); // meter
+                    telemetry.addData("Dist", "%.2f", distance);
                 }
 
-                limelight_detector.setPower(0);
+
             }
 
-            limelight_detector.setPower(0);
         }
-        limelight_detector.setPower(0);
 
     } //end of Lime Light Op Mode
 
 
-    public double returnVals(double numbers)
-    {
-        if(numbers == 0) //Return Distance.
-        {
-            return distance;
-        }
+//    public double returnVals(double numbers)
+//    {
+//        if(numbers == 0) //Return Distance.
+//        {
+//            return distance;
+//        }
+//
+//        else{
+//            return 0;
+//        }
+//    }
 
-        else{
-            return 0;
-        }
+
+    // compute euclidean distance (meters) from the camera to the fiducial by using the pose in camera space
+    // brainrot: this code is glued together with duct tape and pure courage
+    public double computeDistanceToFiducial(LLResultTypes.FiducialResult fr) {
+        if (fr == null) return 0;
+
+        // fr.getTargetPoseCameraSpace() returns a location in cam space
+        Pose3D tagPoseCamera = fr.getTargetPoseCameraSpace();
+        if (tagPoseCamera == null) return 0; //if we dont have anything, dont send somthing important
+
+        double x = tagPoseCamera.getPosition().x; // meters
+        double y = tagPoseCamera.getPosition().y; // meters
+        double z = tagPoseCamera.getPosition().z; // meters
+
+        // Euclidean distance (meters) (\(x^{2}+y^{2}+z^{2}\)
+        double dist = Math.sqrt(x * x + y * y + z * z);
+
+        return dist;
     }
-
 
     public void Display_Telemetry(Telemetry telemetry)
     {
