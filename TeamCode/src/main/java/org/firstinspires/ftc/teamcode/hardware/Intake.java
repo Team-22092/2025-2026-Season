@@ -27,13 +27,18 @@ public class Intake {
     {
 
         //intake.
-//        if(Gamepad2.a)
-//        {
-//            spin_input.setPower(1);
-//        }
-//        else {
-//            spin_input.setPower(0);
-//        }
+        if(Gamepad2.a)
+        {
+            spin_input.setPower(1);
+        }
+        else if(Gamepad2.options)
+        {
+            spin_input.setPower(-1);
+        }
+        else {
+            spin_input.setPower(0);
+        }
+
     }
 
 

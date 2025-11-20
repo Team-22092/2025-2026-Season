@@ -22,24 +22,62 @@ public class Sort {
     }
 
     int setpos = 1;
-    private final double[] POSITIONSForward = {0.5, 1};
 
-    private final double[] POSITIONSBackward = {0.5, 0};
+    float sortposup;
+    boolean flipdir, carroselOn;
+
+    private final double[] POSITIONSBackward = {0.19, 0.56, 0.935};
 
     public void SortOpMode(Gamepad Gamepad2, Gamepad oldGamepad2)
     {//
-        if(Gamepad2.x && !oldGamepad2.x )
+
+        if(Gamepad2.triangle && !oldGamepad2.triangle)
+        {
+            carroselOn = !carroselOn;
+        }
+
+        if(carroselOn)
+        {
+            sort.setPosition(sortposup);
+            if(sortposup >= 1)
+            {
+                flipdir = !flipdir;
+            }
+            if(sortposup <= 0){
+                flipdir = !flipdir;
+            }
+
+
+            if(flipdir)    sortposup = (float) (sortposup + 0.015);
+
+            if(!flipdir)    sortposup = (float) (sortposup - 0.015);
+        }
+
+
+        if(Gamepad2.right_bumper && !oldGamepad2.right_bumper )
         {
 
-            setpos = (setpos + 1) % POSITIONSForward.length; //get the
-            sort.setPosition(POSITIONSForward[setpos]);
+
+
+           setpos = (setpos + 1) % POSITIONSBackward.length; //get the
+           sort.setPosition(POSITIONSBackward[setpos]);
 
         }
-        if(Gamepad2.y && !oldGamepad2.y)
+        if(Gamepad2.left_bumper && !oldGamepad2.left_bumper)
         {
-            setpos = (setpos + 1) % POSITIONSBackward.length; //get the
-            sort.setPosition(POSITIONSBackward[setpos]);
+          // % -POSITIONSBackward.length; //get the
+           if(setpos <= -1)
+           {
+               setpos = POSITIONSBackward.length-1;
+           }
+           else{
+               setpos = (setpos - 1);
+               sort.setPosition(POSITIONSBackward[setpos]);
+
+           }
+
         }
+
 
     }
 

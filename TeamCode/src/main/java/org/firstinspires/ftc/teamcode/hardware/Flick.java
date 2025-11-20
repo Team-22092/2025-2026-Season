@@ -19,10 +19,10 @@ public class Flick {
     }
 
     int setpos = 0; //the pos to set
-    private final double[] POSITIONS = {0.4, 1}; //positions to go to
+    //private final double[] POSITIONS = {0.4, 1}; //positions to go to
     public void FlickOpMode(Gamepad Gamepad2, Gamepad oldGamepad2)
     {//
-        if(Gamepad2.right_bumper)
+        if(Gamepad2.b)
         {
 
          flickthing.setPosition(1);

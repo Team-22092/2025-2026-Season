@@ -45,17 +45,17 @@ public class ShootWheels {
     public void ShootWheelsOpMode(Gamepad gamepadTwo, Gamepad gamepad2Old, LimeLight limeLight) {
 
 
-        if (gamepadTwo.left_bumper && !gamepad2Old.left_bumper) {
+        if (gamepadTwo.square && !gamepad2Old.square) {
             wheelOn = !wheelOn;
         }
-//
-//        if(wheelOn)
-//        {
+
+        if(wheelOn)
+        {
             double currentPos = WHEEL.getCurrentPosition();
 
             distance = limeLight.distance;
 //OLD (354.39823*Math.pow(distance, 2) + -525.61364*distance + 3514.68988)
-            targetPosition = 263.56729*Math.pow(distance, 2) + -301.42887*distance + 3413.50402 ;
+            //targetPosition = 263.56729*Math.pow(distance, 2) + -301.42887*distance + 3413.50402 ;
 
 
 
@@ -73,7 +73,7 @@ public class ShootWheels {
         }
 
         //    pos = 0.00075*Math.pow(distance, 2) + -0.03851*distance + 0.74990;
-        pos = 0.00226*Math.pow(distance, 2) + -0.04383*distance + 0.75969;
+        //pos = 0.00226*Math.pow(distance, 2) + -0.04383*distance + 0.75969;
 
             pos = Math.max(0.0, Math.min(1.0, pos));
             hood.setPosition(pos);
@@ -87,18 +87,18 @@ public class ShootWheels {
 
             //debug code
 
-            if (gamepadTwo.a && !gamepad2Old.a) {
+            if (gamepadTwo.dpad_up && !gamepad2Old.dpad_up) {
                   targetPosition += 50;
 
               }
-            if (gamepadTwo.b && !gamepad2Old.b)
+            if (gamepadTwo.dpad_down && !gamepad2Old.dpad_down)
               {
                     targetPosition -= 50;
               }
-//        }
-//        else{
-//            WHEEL.setPower(0);
-//        }
+        }
+        else{
+            WHEEL.setPower(0);
+        }
 
 
 
