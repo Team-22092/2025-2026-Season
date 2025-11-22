@@ -55,7 +55,8 @@ public class ShootWheels {
 
             distance = limeLight.distance;
 //OLD (354.39823*Math.pow(distance, 2) + -525.61364*distance + 3514.68988)
-            //targetPosition = 263.56729*Math.pow(distance, 2) + -301.42887*distance + 3413.50402 ;
+            //targetPosition = 158.18085*Math.pow(distance, 2) + 136.45500*distance + 3033.59896;
+
 
 
 
@@ -65,35 +66,34 @@ public class ShootWheels {
 
 
         if(gamepadTwo.dpad_left && !gamepad2Old.dpad_left){
-            pos+=0.02;
+            pos+=0.01;
         }
         if(gamepadTwo.dpad_right && !gamepad2Old.dpad_right)
         {
-            pos -= 0.02;
+            pos -= 0.01;
         }
 
         //    pos = 0.00075*Math.pow(distance, 2) + -0.03851*distance + 0.74990;
-        //pos = 0.00226*Math.pow(distance, 2) + -0.04383*distance + 0.75969;
+        //pos = 0.00918*Math.pow(distance, 2) + -0.06259*distance + 0.75987;
 
             pos = Math.max(0.0, Math.min(1.0, pos));
             hood.setPosition(pos);
 
+//        if()
 
-
-
-        targetRPM(targetPosition);
+        WHEEL.setPower(targetPosition);
 
 
 
             //debug code
 
             if (gamepadTwo.dpad_up && !gamepad2Old.dpad_up) {
-                  targetPosition += 50;
+                  targetPosition += 0.05;
 
               }
             if (gamepadTwo.dpad_down && !gamepad2Old.dpad_down)
               {
-                    targetPosition -= 50;
+                    targetPosition -= 0.05;
               }
         }
         else{
@@ -145,7 +145,7 @@ public class ShootWheels {
         double current = currentRPM();
         double error = targetRPM - current;
 
-        double k = 0.000003;
+        double k = 0.000055;
 
         double power = WHEEL.getPower();
 

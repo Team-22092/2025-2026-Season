@@ -29,7 +29,7 @@ public class Flick {
 
         }
         else {
-            flickthing.setPosition(0.35);
+            flickthing.setPosition(0.32);
         }
 
 

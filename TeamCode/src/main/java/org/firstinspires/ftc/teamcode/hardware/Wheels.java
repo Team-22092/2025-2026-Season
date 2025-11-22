@@ -81,6 +81,12 @@ public class Wheels {
 
 
 
+        Front_Left_Wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Front_Right_Wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Back_Left_Wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Back_Right_Wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
 
         //Set direction, so Reverse sets left to be the considered "Forward" and right to be "Backword", and Forward sets right to be considered "Forward" and right to be "Backword"
         Front_Left_Wheel.setDirection(DcMotor.Direction.FORWARD); //Because this is flipped on the Robot frame, it needs to be set to reverse

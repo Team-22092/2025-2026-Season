@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
-import static android.os.SystemClock.sleep;
-
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -19,6 +16,7 @@ public class Sort {
         sort.setDirection(Servo.Direction.REVERSE  );
 
 
+
     }
 
     int setpos = 1;
@@ -26,9 +24,9 @@ public class Sort {
     float sortposup;
     boolean flipdir, carroselOn;
 
-    private final double[] POSITIONSBackward = {0.19, 0.56, 0.935};
+    private final double[] POSITIONSBackward = {0.19, 0.56, 0.935, 0.56};
 
-    public void SortOpMode(Gamepad Gamepad2, Gamepad oldGamepad2)
+    public void SortOpMode(Gamepad Gamepad2, Gamepad oldGamepad2, Flick flick)
     {//
 
         if(Gamepad2.triangle && !oldGamepad2.triangle)
@@ -62,6 +60,7 @@ public class Sort {
            setpos = (setpos + 1) % POSITIONSBackward.length; //get the
            sort.setPosition(POSITIONSBackward[setpos]);
 
+
         }
         if(Gamepad2.left_bumper && !oldGamepad2.left_bumper)
         {
@@ -80,6 +79,7 @@ public class Sort {
 
 
     }
+
 
     public void SortTelem(Telemetry telemetry)
     {

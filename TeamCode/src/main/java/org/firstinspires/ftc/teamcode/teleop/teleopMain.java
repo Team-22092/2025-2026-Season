@@ -92,7 +92,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
         wheels.ManualDrive(currentGamepadDrive); //Drive code --DO NOT REMOVE
         intake.IntakeOpMode(currentGamepadCopilot);
-        sort.SortOpMode(currentGamepadCopilot, prevGamepadCopilot);
+        sort.SortOpMode(currentGamepadCopilot, prevGamepadCopilot, flick);
         flick.FlickOpMode(currentGamepadCopilot, prevGamepadCopilot);
 
 

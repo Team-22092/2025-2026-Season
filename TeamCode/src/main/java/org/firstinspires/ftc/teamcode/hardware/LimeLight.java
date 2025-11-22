@@ -116,7 +116,7 @@ public class LimeLight {
                 } else if (fr.getFiducialId() == 24) {
                     distance = computeDistanceToFiducial(fr); // meter
                     telemetry.addData("Dist", "%.2f", distance);
-                } else if (fr.getFiducialId() == 25){
+                } else if (fr.getFiducialId() == 20){
                     distance = computeDistanceToFiducial(fr); // meter
                     telemetry.addData("Dist", "%.2f", distance);
                 }
