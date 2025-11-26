@@ -7,7 +7,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Flick {
-    private Servo flickthing; //servo of Our Flicker
+    public Servo flickthing; //servo of Our Flicker
+
+    public boolean flickup;
 
     public Flick(HardwareMap hardwareMap)
     {
@@ -26,10 +28,12 @@ public class Flick {
         {
 
          flickthing.setPosition(1);
+         flickup = true;
 
         }
         else {
             flickthing.setPosition(0.32);
+            flickup = false;
         }
 
 

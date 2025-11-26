@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Sort {
-    private Servo sort;
+    public Servo sort;
 
     public Sort(HardwareMap hardwareMap)
     {
@@ -34,7 +34,7 @@ public class Sort {
             carroselOn = !carroselOn;
         }
 
-        if(carroselOn)
+        if(carroselOn && !flick.flickup)
         {
             sort.setPosition(sortposup);
             if(sortposup >= 1)
@@ -52,7 +52,7 @@ public class Sort {
         }
 
 
-        if(Gamepad2.right_bumper && !oldGamepad2.right_bumper )
+        if(Gamepad2.right_bumper && !oldGamepad2.right_bumper && !flick.flickup)
         {
 
 
@@ -62,18 +62,17 @@ public class Sort {
 
 
         }
-        if(Gamepad2.left_bumper && !oldGamepad2.left_bumper)
+        if(Gamepad2.left_bumper && !oldGamepad2.left_bumper && !flick.flickup )
         {
           // % -POSITIONSBackward.length; //get the
-           if(setpos <= -1)
+            setpos = (setpos - 1);
+           if(setpos < 0)
            {
                setpos = POSITIONSBackward.length-1;
            }
-           else{
-               setpos = (setpos - 1);
-               sort.setPosition(POSITIONSBackward[setpos]);
 
-           }
+
+            sort.setPosition(POSITIONSBackward[setpos]);
 
         }
 

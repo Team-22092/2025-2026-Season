@@ -1,25 +1,13 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
-import androidx.annotation.NonNull;
-
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Arclength;
-import com.acmerobotics.roadrunner.CompositeAccelConstraint;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Pose2dDual;
-import com.acmerobotics.roadrunner.PosePath;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.Flick;
@@ -29,8 +17,8 @@ import org.firstinspires.ftc.teamcode.hardware.Sort;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Autonomous(name = "OnSkibAutoFRRRR")
-public class RedSideShoot extends LinearOpMode {
+@Autonomous(name = "BLUEOnSkibAutoFRRRR")
+public class BlueSideShoot extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -47,7 +35,7 @@ public class RedSideShoot extends LinearOpMode {
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
         Action MainAction = drive.actionBuilder(initialPose)
-                .strafeToLinearHeading(new Vector2d(60,11), Math.toRadians(158))
+                .strafeToLinearHeading(new Vector2d(60,11), Math.toRadians(-158))
 
                 // timed servo actions using InstantAction
                 .afterTime(4.0, new InstantAction(() -> sort.sort.setPosition(0.19)))
@@ -64,6 +52,7 @@ public class RedSideShoot extends LinearOpMode {
 
                 .waitSeconds(15)
                 .lineToX(10)
+                //.strafeToLinearHeading(new Vector2d(50,11), Math.toRadians(145))
                 .build();
 
         telemetry.addLine("READY! GOOD LUCK :)");

@@ -1,15 +1,20 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
 public class ShootWheels {
+
+    private VoltageSensor myControlHubVoltageSensor;
 
     private DcMotor WHEEL; // Single shooter wheel
     private Servo hood;
@@ -26,6 +31,10 @@ public class ShootWheels {
         // Initialize hardware
         WHEEL = hardwareMap.get(DcMotor.class, "WHEEL");
         hood = hardwareMap.get(Servo.class, "H");
+
+        myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
+// The string "Control Hub" may vary based on your configuration file name.
+
 
         // Motor setup
         WHEEL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -54,16 +63,20 @@ public class ShootWheels {
             double currentPos = WHEEL.getCurrentPosition();
 
             distance = limeLight.distance;
+//            double voltage;
+//            voltage = myControlHubVoltageSensor.getVoltage();
+//            targetPosition = 0.13166 * Math.pow(distance, 2)
+//                    + -0.22674 * distance
+//                    + -0.42300 * voltage
+//                    + 5.57881;
+
 //OLD (354.39823*Math.pow(distance, 2) + -525.61364*distance + 3514.68988)
-            //targetPosition = 158.18085*Math.pow(distance, 2) + 136.45500*distance + 3033.59896;
+            if(distance <= 2)
+            {
+                //targetPosition = 0.00853*Math.pow(distance, 2) + 0.11610*distance + 0.34079;
 
-
-
-
-
-
-            // Adjust hood position
-
+            }
+            targetPosition = -0.01526*Math.pow(distance, 2) + 0.13556*distance + 0.35106;
 
         if(gamepadTwo.dpad_left && !gamepad2Old.dpad_left){
             pos+=0.01;
@@ -76,12 +89,16 @@ public class ShootWheels {
         //    pos = 0.00075*Math.pow(distance, 2) + -0.03851*distance + 0.74990;
         //pos = 0.00918*Math.pow(distance, 2) + -0.06259*distance + 0.75987;
 
+            pos =  0.00305*Math.pow(distance, 2) + -0.02711*distance + 0.72979;
+
+            //pos = 0.00171*Math.pow(distance,2) + -0.02322*distance + 0.72784;
+
             pos = Math.max(0.0, Math.min(1.0, pos));
             hood.setPosition(pos);
 
 //        if()
 
-        WHEEL.setPower(targetPosition);
+            WHEEL.setPower(targetPosition);
 
 
 
@@ -195,5 +212,32 @@ public class ShootWheels {
         return test;
 
     }
+
+    public void AutoSHOOT(LimeLight limeLight)
+    {
+        double currentPos = WHEEL.getCurrentPosition();
+
+        distance = limeLight.distance;
+
+        targetPosition = -0.01526*Math.pow(distance, 2) + 0.13556*distance + 0.35106;
+
+
+
+        //    pos = 0.00075*Math.pow(distance, 2) + -0.03851*distance + 0.74990;
+        //pos = 0.00918*Math.pow(distance, 2) + -0.06259*distance + 0.75987;
+
+        pos =  0.00305*Math.pow(distance, 2) + -0.02711*distance + 0.72979;
+
+        //pos = 0.00171*Math.pow(distance,2) + -0.02322*distance + 0.72784;
+
+        pos = Math.max(0.0, Math.min(1.0, pos));
+        hood.setPosition(pos);
+
+//        if()
+
+        WHEEL.setPower(targetPosition);
+
+    }
+
 
 }
