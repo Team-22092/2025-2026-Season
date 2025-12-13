@@ -29,10 +29,12 @@ import org.firstinspires.ftc.teamcode.hardware.LimeLight;
 import org.firstinspires.ftc.teamcode.hardware.ShootWheels;
 import org.firstinspires.ftc.teamcode.hardware.Sort;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Autonomous(name = "OnSkibAutoFRRRR")
 public class RedSideShoot extends LinearOpMode {
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -60,6 +62,22 @@ public class RedSideShoot extends LinearOpMode {
         Action MainAction = drive.actionBuilder(initialPose)
 
 
+                .afterTime(0, new InstantAction(() -> {
+
+                    String c0 = limeLight.GetColors(0);
+                    String c1 = limeLight.GetColors(1);
+
+                    if (c0.equals("P") && c1.equals("G")) {
+                        sort.sort.setPosition(0.19);
+                    }
+                    else if (c0.equals("P") && c1.equals("P")) {
+                        sort.sort.setPosition(0.56);
+                    }
+                    else if (c0.equals("G") && c1.equals("P")) {
+                        sort.sort.setPosition(0.935);
+                    }
+
+                }))
 
 
                 .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-209))
@@ -67,15 +85,45 @@ public class RedSideShoot extends LinearOpMode {
 //
 ////
 //                // timed servo actions using InstantAction
-                .afterTime(3, new InstantAction(() -> sort.sort.setPosition(0.19)))
+               // .afterTime(3, new InstantAction(() -> sort.sort.setPosition(0.19)))
+                .afterTime(3, new InstantAction(() -> {
+                    if (Objects.equals(limeLight.GetColors(0), "P")) {
+                        sort.sort.setPosition(0.19);
+                    } else {
+                        sort.sort.setPosition(0.935);
+                    }
+                }))
+
                 .afterTime(3.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
                 .afterTime(4, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
 
-                .afterTime(5.0, new InstantAction(() -> sort.sort.setPosition(0.56)))
+                .afterTime(5, new InstantAction(() -> {
+                    if (Objects.equals(limeLight.GetColors(1), "P")) {
+                        sort.sort.setPosition(0.56);
+                    } else {
+                        sort.sort.setPosition(0.935);
+                    }
+                }))
                 .afterTime(6.0, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
                 .afterTime(6.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
 
-                .afterTime(8.0, new InstantAction(() -> sort.sort.setPosition(0.935)))
+              //  .afterTime(8.0, new InstantAction(() -> sort.sort.setPosition(0.935)))
+
+                .afterTime(8, new InstantAction(() -> {
+                    if (Objects.equals(limeLight.GetColors(2), "P") && Objects.equals(limeLight.GetColors(1), "P"))
+                    {
+                        sort.sort.setPosition(0.19);
+                    }
+
+                    else if (Objects.equals(limeLight.GetColors(2), "P")) {
+                        sort.sort.setPosition(0.56);
+                    }
+
+                    else {
+                        sort.sort.setPosition(0.935);
+                    }
+                }))
+
                 .afterTime(9.0, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
                 .afterTime(9.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
 //////
@@ -96,7 +144,7 @@ public class RedSideShoot extends LinearOpMode {
                 .strafeTo(new Vector2d(35, 32))
 
 
-                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-205))
+                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-207.5))
 
                 .afterTime(0, new InstantAction(sort::CarroselOff))
                 .afterTime(0, new InstantAction(intake::IntakeOFF))
@@ -143,11 +191,33 @@ public class RedSideShoot extends LinearOpMode {
 ////                .lineToX(10)
                 .build();
 
-        sort.sort.setPosition(0.19);
+        while (!isStarted() && !isStopRequested()) {
 
-        telemetry.addLine("READY! GOOD LUCK :)");
+            if(Objects.equals(limeLight.GetColors(0), "P") && Objects.equals(limeLight.GetColors(1), "G"))
+            {
+               // sort.sort.setPosition(0.19);
+                telemetry.addData("FIRST ONE", "P");
 
-        telemetry.update();
+            }
+            else if(Objects.equals(limeLight.GetColors(0), "P") && Objects.equals(limeLight.GetColors(1), "P"))
+            {
+                telemetry.addData("FIRST ONE", "P");
+               // sort.sort.setPosition(0.56);
+            }
+            else if(Objects.equals(limeLight.GetColors(0), "G") && Objects.equals(limeLight.GetColors(1), "P")) {
+              //  sort.sort.setPosition(0.935);
+                telemetry.addData("FIRST ONE", "G");
+            }
+
+            telemetry.addData("Status", "Waiting for Start - Alliance: Red");
+
+            telemetry.addLine("READY! GOOD LUCK :)");
+
+            telemetry.update();
+            idle(); // Important to yield the processor to other processes
+        }
+
+
 
         waitForStart();
         if (isStopRequested()) return;

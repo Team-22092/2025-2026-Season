@@ -29,6 +29,7 @@ import org.firstinspires.ftc.teamcode.hardware.LimeLight;
 import org.firstinspires.ftc.teamcode.hardware.ShootWheels;
 import org.firstinspires.ftc.teamcode.hardware.Sort;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Autonomous(name = "BLUEOnSkibAutoFRRRR")
@@ -63,21 +64,63 @@ public class BlueSideShoot extends LinearOpMode {
 
 
 
+                .afterTime(0, new InstantAction(() -> {
 
-                .strafeToLinearHeading(new Vector2d(60, -11), Math.toRadians(205))
+                    String c0 = limeLight.GetColors(0);
+                    String c1 = limeLight.GetColors(1);
+
+                    if (c0.equals("P") && c1.equals("G")) {
+                        sort.sort.setPosition(0.19);
+                    }
+                    else if (c0.equals("P") && c1.equals("P")) {
+                        sort.sort.setPosition(0.56);
+                    }
+                    else if (c0.equals("G") && c1.equals("P")) {
+                        sort.sort.setPosition(0.935);
+                    }
+
+                }))
+
+                .strafeToLinearHeading(new Vector2d(60, -11), Math.toRadians(203))
 //
 //
 ////
 //                // timed servo actions using InstantAction
-                .afterTime(3, new InstantAction(() -> sort.sort.setPosition(0.19)))
+                .afterTime(3, new InstantAction(() -> {
+                    if (Objects.equals(limeLight.GetColors(0), "P")) {
+                        sort.sort.setPosition(0.19);
+                    } else {
+                        sort.sort.setPosition(0.935);
+                    }
+                }))
                 .afterTime(3.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
                 .afterTime(4, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
 
-                .afterTime(5.0, new InstantAction(() -> sort.sort.setPosition(0.56)))
+                .afterTime(5, new InstantAction(() -> {
+                    if (Objects.equals(limeLight.GetColors(1), "P")) {
+                        sort.sort.setPosition(0.56);
+                    } else {
+                        sort.sort.setPosition(0.935);
+                    }
+                }))
                 .afterTime(6.0, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
                 .afterTime(6.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
 
-                .afterTime(8.0, new InstantAction(() -> sort.sort.setPosition(0.935)))
+                .afterTime(8, new InstantAction(() -> {
+                    if (Objects.equals(limeLight.GetColors(2), "P") && Objects.equals(limeLight.GetColors(1), "P"))
+                    {
+                        sort.sort.setPosition(0.19);
+                    }
+
+                    else if (Objects.equals(limeLight.GetColors(2), "P")) {
+                        sort.sort.setPosition(0.56);
+                    }
+
+                    else {
+                        sort.sort.setPosition(0.935);
+                    }
+                }))
+
                 .afterTime(9.0, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
                 .afterTime(9.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
 //////
@@ -90,7 +133,7 @@ public class BlueSideShoot extends LinearOpMode {
                 .waitSeconds(11)
 
 //
-                .strafeToLinearHeading(new Vector2d(39, -32), Math.toRadians(-90))
+                .strafeToLinearHeading(new Vector2d(38, -32), Math.toRadians(-90))
 
 
                 .strafeTo(new Vector2d(38, -60), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-20, 20))
@@ -98,7 +141,7 @@ public class BlueSideShoot extends LinearOpMode {
                 .strafeTo(new Vector2d(35, -32))
 
 
-                .strafeToLinearHeading(new Vector2d(60, -11), Math.toRadians(202))
+                .strafeToLinearHeading(new Vector2d(62, -11), Math.toRadians(200.5))
 
                 .afterTime(0, new InstantAction(sort::CarroselOff))
                 .afterTime(0, new InstantAction(intake::IntakeOFF))
@@ -143,7 +186,32 @@ public class BlueSideShoot extends LinearOpMode {
 ////                .lineToX(10)
                 .build();
 
-        sort.sort.setPosition(0.19);
+        while (!isStarted() && !isStopRequested()) {
+
+            if(Objects.equals(limeLight.GetColors(0), "P") && Objects.equals(limeLight.GetColors(1), "G"))
+            {
+                // sort.sort.setPosition(0.19);
+                telemetry.addData("FIRST ONE", "P");
+
+            }
+            else if(Objects.equals(limeLight.GetColors(0), "P") && Objects.equals(limeLight.GetColors(1), "P"))
+            {
+                telemetry.addData("FIRST ONE", "P");
+                // sort.sort.setPosition(0.56);
+            }
+            else if(Objects.equals(limeLight.GetColors(0), "G") && Objects.equals(limeLight.GetColors(1), "P")) {
+                //  sort.sort.setPosition(0.935);
+                telemetry.addData("FIRST ONE", "G");
+            }
+
+            telemetry.addData("Status", "Waiting for Start - Alliance: Red");
+
+            telemetry.addLine("READY! GOOD LUCK :)");
+
+            telemetry.update();
+            idle(); // Important to yield the processor to other processes
+        }
+
 
         telemetry.addLine("READY! GOOD LUCK :)");
 

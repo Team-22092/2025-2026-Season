@@ -20,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -55,6 +56,7 @@ public class LimeLight {
         //0 = AprilTags
         //1 = Purple Balls
         //2 = Green Balls
+
         limelight.pipelineSwitch(0);
 
 
@@ -80,8 +82,15 @@ public class LimeLight {
         telemetry.update();
     } //end of Lime Light
     YawPitchRollAngles orientation;
+
+    public List<String> Parts = new ArrayList<>();
+
+
     public void LimeLightOpMode(Telemetry telemetry, ColorTest colorTest) //final code wont have telem value, this is for testing //TODO turn this into a double to pull Yaw val for WHEELS
     {
+
+        limelight.pipelineSwitch(0);
+
         if (limelight == null) { //If we can detect the limelight
             //TODO - REMOVE THIS LATER
             //TODO - MOVE THIS TO Display_Telemetry
@@ -110,10 +119,16 @@ public class LimeLight {
                 //Define the patterns
                 if (fr.getFiducialId() == 23) {
                     telemetry.addData("Pattern", "[Purple] [Purple] [Green]");
+                    Parts.clear();
+                    Parts.add("P"); Parts.add("P"); Parts.add("G");
                 } else if (fr.getFiducialId() == 21) {
                     telemetry.addData("Pattern", "[Green] [Purple] [Purple]");
+                    Parts.clear();
+                    Parts.add("G"); Parts.add("P"); Parts.add("P");
                 } else if (fr.getFiducialId() == 22) {
                     telemetry.addData("Pattern", "[Purple] [Green] [Purple]");
+                    Parts.clear();
+                    Parts.add("P"); Parts.add("G"); Parts.add("P");
                 } else if (fr.getFiducialId() == 24) {
                     distance = computeDistanceToFiducial(fr, colorTest, telemetry); // meter
                     telemetry.addData("Dist", "%.2f", distance);
@@ -223,6 +238,46 @@ public class LimeLight {
 
 
         return dist;
+    }
+
+
+    public String GetColors(float part) {
+        LLResult result = limelight.getLatestResult(); //Pull the results from the limelight
+        limelight.pipelineSwitch(3);
+
+        if (Parts.isEmpty()) {
+            Parts.add("P");
+            Parts.add("P");
+            Parts.add("G");
+        }
+
+        if(result == null)
+        {
+            return Parts.get((int) part);
+        }
+        if (result.isValid()) { //If the result isn't nothing, and its valid, keep going
+            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults(); //LL Result types is latest results from the camera, the FiducialResults is valid april tags, and we have a list of them.
+            if (!fiducials.isEmpty()) {
+                LLResultTypes.FiducialResult fr = fiducials.get(0);
+                if (fr.getFiducialId() == 23) {
+                    Parts.clear();
+                    Parts.add("P");
+                    Parts.add("P");
+                    Parts.add("G");
+                } else if (fr.getFiducialId() == 21) {
+                    Parts.clear();
+                    Parts.add("G");
+                    Parts.add("P");
+                    Parts.add("P");
+                } else if (fr.getFiducialId() == 22) {
+                    Parts.clear();
+                    Parts.add("P");
+                    Parts.add("G");
+                    Parts.add("P");
+
+                }}}
+
+        return Parts.get((int) part);
     }
 
 
