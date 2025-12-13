@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Sort {
     public Servo sort;
-
+    //boolean carroselOn = false;
     public Sort(HardwareMap hardwareMap)
     {
         //TODO - DEFINE MOTORS
@@ -22,7 +22,7 @@ public class Sort {
     int setpos = 1;
 
     float sortposup;
-    boolean flipdir, carroselOn;
+    public boolean flipdir, carroselOn;
 
     private final double[] POSITIONSBackward = {0.19, 0.56, 0.935, 0.56};
 
@@ -80,11 +80,20 @@ public class Sort {
     }
 
 
+
+
     public void SortTelem(Telemetry telemetry)
     {
         telemetry.addData("SetPos", setpos);
        // telemetry.addData("ServoPos", sort.getPosition());
     }
 
+    public void CarroselOn() {
+        carroselOn = true;
+    }
 
+    public void CarroselOff()
+    {
+       carroselOn = false;
+    }
 }

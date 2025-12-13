@@ -38,7 +38,7 @@ public class LimeLight {
     public double distance = 0;
 
 
-
+    double angle;
 
 
     //start code (when the robot is started, ran in teleopMain.java
@@ -79,8 +79,8 @@ public class LimeLight {
         telemetry.addData("Limelight On, Returning, this is updated: ", limelight.getStatus()); //Get limelight status
         telemetry.update();
     } //end of Lime Light
-
-    public void LimeLightOpMode(Telemetry telemetry ) //final code wont have telem value, this is for testing //TODO turn this into a double to pull Yaw val for WHEELS
+    YawPitchRollAngles orientation;
+    public void LimeLightOpMode(Telemetry telemetry, ColorTest colorTest) //final code wont have telem value, this is for testing //TODO turn this into a double to pull Yaw val for WHEELS
     {
         if (limelight == null) { //If we can detect the limelight
             //TODO - REMOVE THIS LATER
@@ -97,15 +97,16 @@ public class LimeLight {
 
         //telemetry.addData("Have we", "Pushed?");
 
-
+        //colorTest.moveRight = false;
         if(result != null && result.isValid()) { //If the result isn't nothing, and its valid, keep going
 
 
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults(); //LL Result types is latest results from the camera, the FiducialResults is valid april tags, and we have a list of them.
+
             if (!fiducials.isEmpty()) { //skip if theres no tags detected, but if there is, keep going
                 LLResultTypes.FiducialResult fr = fiducials.get(0); //get the first valid tag from the camera
                 //print the id
-                telemetry.addData("ID", fr.getFiducialId()); //TODO - REMOVE THIS LATER
+                //telemetry.addData("ID", fr.getFiducialId()); //TODO - REMOVE THIS LATER
                 //Define the patterns
                 if (fr.getFiducialId() == 23) {
                     telemetry.addData("Pattern", "[Purple] [Purple] [Green]");
@@ -114,16 +115,48 @@ public class LimeLight {
                 } else if (fr.getFiducialId() == 22) {
                     telemetry.addData("Pattern", "[Purple] [Green] [Purple]");
                 } else if (fr.getFiducialId() == 24) {
-                    distance = computeDistanceToFiducial(fr); // meter
+                    distance = computeDistanceToFiducial(fr, colorTest, telemetry); // meter
                     telemetry.addData("Dist", "%.2f", distance);
                 } else if (fr.getFiducialId() == 20){
-                    distance = computeDistanceToFiducial(fr); // meter
+                    distance = computeDistanceToFiducial(fr, colorTest, telemetry); // meter
                     telemetry.addData("Dist", "%.2f", distance);
                 }
 
 
+
+//
+//                double yaw = orientation.getYaw();
+//
+//
+//                boolean inMainCenter = (yaw > -35 && yaw < 45);
+//
+//                boolean inSpecialCenter = (yaw > -45 && yaw < -35);
+//
+//
+//                if (inMainCenter || inSpecialCenter) {
+//                    colorTest.centered = true;
+//                    colorTest.moveRight = false;
+//                }
+//
+//                else if (yaw >= 13) {
+//                    colorTest.centered = false;
+//                    colorTest.moveRight = true;
+//                }
+//
+//                else if (yaw <= -13) {
+//                    colorTest.centered = false;
+//                    colorTest.moveRight = false;
+//                }
+//
+//
+
+
+
             }
 
+        }
+        else{
+            colorTest.centered = false;
         }
 
     } //end of Lime Light Op Mode
@@ -144,22 +177,55 @@ public class LimeLight {
 
     // compute euclidean distance (meters) from the camera to the fiducial by using the pose in camera space
     // brainrot: this code is glued together with duct tape and pure courage
-    public double computeDistanceToFiducial(LLResultTypes.FiducialResult fr) {
+    // compute euclidean distance (meters) from the camera to the fiducial by using the pose in camera space
+// brainrot: this code is glued together with duct tape and pure courage (and now a little logic)
+    double thresholdDeg = 1;
+    public double computeDistanceToFiducial(LLResultTypes.FiducialResult fr, ColorTest colorTest, Telemetry telemetry) {
         if (fr == null) return 0;
-
-        // fr.getTargetPoseCameraSpace() returns a location in cam space
         Pose3D tagPoseCamera = fr.getTargetPoseCameraSpace();
-        if (tagPoseCamera == null) return 0; //if we dont have anything, dont send somthing important
+        if (tagPoseCamera == null) return 0;
 
-        double x = tagPoseCamera.getPosition().x; // meters
-        double y = tagPoseCamera.getPosition().y; // meters
-        double z = tagPoseCamera.getPosition().z; // meters
+        double x = tagPoseCamera.getPosition().x;
+        double y = tagPoseCamera.getPosition().y;
+        double z = tagPoseCamera.getPosition().z;
 
-        // Euclidean distance (meters) (\(x^{2}+y^{2}+z^{2}\)
         double dist = Math.sqrt(x * x + y * y + z * z);
+
+        double yaw = tagPoseCamera.getOrientation().getYaw();
+        //double yawDeg = Math.toDegrees(yawRad);
+
+
+
+
+        //telemetry.addData("ANGLE OF YAW", yaw);
+
+// center zone (strict): -6 .. 4
+        boolean inMainCenter = (yaw > -4 && yaw < 7);
+
+        if (inMainCenter) {
+            // fully centered
+            colorTest.centered = true;
+
+            colorTest.moveRight = false;
+        }
+        else {
+
+            colorTest.centered = false;
+
+            colorTest.moveRight = (yaw > 0);
+
+        }
+
+// telemetry so we can debug quickly
+
+        telemetry.update();
+
+
 
         return dist;
     }
+
+
 
     public void Display_Telemetry(Telemetry telemetry)
     {

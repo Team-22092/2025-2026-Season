@@ -6,8 +6,11 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.hardware.BallColor;
+import org.firstinspires.ftc.teamcode.hardware.ColorTest;
 import org.firstinspires.ftc.teamcode.hardware.Flick;
 import org.firstinspires.ftc.teamcode.hardware.LimeLight;
+import org.firstinspires.ftc.teamcode.hardware.SAVESHOTS;
 import org.firstinspires.ftc.teamcode.hardware.ShootWheels;
 import org.firstinspires.ftc.teamcode.hardware.Wheels;
 import org.firstinspires.ftc.teamcode.hardware.Intake;
@@ -28,6 +31,12 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
     Wheels wheels; //Get the wheels, this is a secondary func in HardWare.
     Intake intake;
 
+    SAVESHOTS saveshots;
+
+    BallColor ballColor;
+
+    ColorTest colorTest;
+
     Sort sort;
     public LimeLight limeLight; //Get the Limelight
 
@@ -44,6 +53,13 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         //TODO - Uncomment
        wheels = new Wheels(hardwareMap); //new hardware map for wheels.
         intake = new Intake(hardwareMap);
+
+
+        saveshots = new SAVESHOTS(hardwareMap);
+
+        ballColor = new BallColor(hardwareMap);
+
+        colorTest = new ColorTest(hardwareMap, telemetry);
 
         sort = new Sort(hardwareMap);
 
@@ -98,7 +114,10 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
         //Run the shoot
 
-       shootWheels.ShootWheelsOpMode(currentGamepadCopilot, prevGamepadCopilot, limeLight);
+       shootWheels.ShootWheelsOpMode(currentGamepadCopilot, prevGamepadCopilot, limeLight, hardwareMap);
+
+
+       colorTest.COLOR();
 
           //Gets the copilot buttons and sends it to spin the motors
 
@@ -108,15 +127,17 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
 
 
-        limeLight.LimeLightOpMode(telemetry); //Pull the Yaw for the AprilTag, and display.
+        limeLight.LimeLightOpMode(telemetry, colorTest); //Pull the Yaw for the AprilTag, and display.
 
+
+        saveshots.IntakeOpMode(gamepad2, shootWheels);
 
 
 
         //TODO - STATE MACHINE GOES HERE.
 
 
-
+        ballColor.ColorOpMode(telemetry);
 
 
 

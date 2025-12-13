@@ -27,7 +27,7 @@ public class Flick {
         if(Gamepad2.b)
         {
 
-         flickthing.setPosition(1);
+         flickthing.setPosition(0.53);
          flickup = true;
 
         }

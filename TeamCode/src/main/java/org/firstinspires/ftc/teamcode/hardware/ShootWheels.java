@@ -2,22 +2,33 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import com.qualcomm.robotcore.hardware.Servo;
+
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import static org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver.LayerHeight;
+
+import org.firstinspires.ftc.teamcode.Prism.Color;
+import org.firstinspires.ftc.teamcode.Prism.GoBildaPrismDriver;
+import org.firstinspires.ftc.teamcode.Prism.PrismAnimations;
 
 public class ShootWheels {
 
+
+   // GoBildaPrismDriver prism;
+
     private VoltageSensor myControlHubVoltageSensor;
 
-    private DcMotor WHEEL; // Single shooter wheel
-    private Servo hood;
+    public DcMotor WHEEL; // Single shooter wheel
+    public static Servo hood;
     private double targetPosition = 0; // ticks target,should be set to 0.
     private ElapsedTime timer;
 
@@ -32,6 +43,9 @@ public class ShootWheels {
         WHEEL = hardwareMap.get(DcMotor.class, "WHEEL");
         hood = hardwareMap.get(Servo.class, "H");
 
+        //prism = hardwareMap.get(GoBildaPrismDriver.class,"prism");
+
+
         myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
 // The string "Control Hub" may vary based on your configuration file name.
 
@@ -44,15 +58,29 @@ public class ShootWheels {
 
 
 
+        //prism.setStripLength(64);
+
+        //setColor(255, 0, 0);
+
+
+
+
+
+
         timer = new ElapsedTime();
         timer.reset();
     }
 
     /** Call this in your main loop to control wheel speed and hood */
-    double distance;
+    public static double distance;
     boolean wheelOn;
-    public void ShootWheelsOpMode(Gamepad gamepadTwo, Gamepad gamepad2Old, LimeLight limeLight) {
 
+    public double compensation ;
+
+    double brightness;
+    public void ShootWheelsOpMode(Gamepad gamepadTwo, Gamepad gamepad2Old, LimeLight limeLight, HardwareMap hardwareMap) {
+
+        //setColor(0, 255, 0);
 
         if (gamepadTwo.square && !gamepad2Old.square) {
             wheelOn = !wheelOn;
@@ -65,33 +93,49 @@ public class ShootWheels {
             distance = limeLight.distance;
 //            double voltage;
 //            voltage = myControlHubVoltageSensor.getVoltage();
-//            targetPosition = 0.13166 * Math.pow(distance, 2)
-//                    + -0.22674 * distance
-//                    + -0.42300 * voltage
-//                    + 5.57881;
 
-//OLD (354.39823*Math.pow(distance, 2) + -525.61364*distance + 3514.68988)
-            if(distance <= 2)
-            {
-                //targetPosition = 0.00853*Math.pow(distance, 2) + 0.11610*distance + 0.34079;
 
+
+            double idealVoltage = 13.50;
+
+            double currentVoltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
+
+            //double base = -0.01885*Math.pow(distance, 2) + 0.13790*distance + 0.35232; OLD
+
+            double base = -0.02998*Math.pow(distance, 2) + 0.18677*distance + 0.35187;
+
+            double compensation = idealVoltage / currentVoltage;
+
+            double targetPosition = base * compensation;
+
+
+
+
+
+
+
+
+
+
+
+
+           // pos =  0.00229*Math.pow(distance, 2) + -0.02398*distance + 0.72793; OLD
+            pos = 0.00230*Math.pow(distance, 2) + -0.02401*distance + 0.72795;
+
+
+
+
+
+
+            if(gamepadTwo.dpad_left && !gamepad2Old.dpad_left){
+                pos+=0.01;
             }
-            targetPosition = -0.01526*Math.pow(distance, 2) + 0.13556*distance + 0.35106;
-
-        if(gamepadTwo.dpad_left && !gamepad2Old.dpad_left){
-            pos+=0.01;
-        }
         if(gamepadTwo.dpad_right && !gamepad2Old.dpad_right)
         {
             pos -= 0.01;
         }
 
-        //    pos = 0.00075*Math.pow(distance, 2) + -0.03851*distance + 0.74990;
-        //pos = 0.00918*Math.pow(distance, 2) + -0.06259*distance + 0.75987;
 
-            pos =  0.00305*Math.pow(distance, 2) + -0.02711*distance + 0.72979;
-
-            //pos = 0.00171*Math.pow(distance,2) + -0.02322*distance + 0.72784;
 
             pos = Math.max(0.0, Math.min(1.0, pos));
             hood.setPosition(pos);
@@ -106,16 +150,23 @@ public class ShootWheels {
 
             if (gamepadTwo.dpad_up && !gamepad2Old.dpad_up) {
                   targetPosition += 0.05;
+                 // brightness += 50;
 
               }
             if (gamepadTwo.dpad_down && !gamepad2Old.dpad_down)
               {
                     targetPosition -= 0.05;
+
+                    //brightness +=-50;
               }
         }
         else{
             WHEEL.setPower(0);
         }
+
+
+
+
 
 
 
@@ -127,7 +178,7 @@ public class ShootWheels {
 
 
         telemetry.addData("Hood Position", hood.getPosition());
-        telemetry.addData("Wheel % ", Math.round(WHEEL.getPower() * 100) + "%");
+        telemetry.addData("Wheel % ", Math.round(WHEEL.getPower() * 100) * compensation + "%");
       //  telemetry.addData("Wheel Encoder", WHEEL.getCurrentPosition());
         telemetry.addData("","");
         telemetry.addData("Wheel PID Target", targetPosition);
@@ -157,24 +208,6 @@ public class ShootWheels {
     // gearRatio = motor_revs / wheel_revs (if motor attached directly to wheel use 1.0)
     private final double gearRatio = 1.0; // <<--- set if you have gearbox
 
-
-    void targetRPM(double targetRPM) {
-        double current = currentRPM();
-        double error = targetRPM - current;
-
-        double k = 0.000055;
-
-        double power = WHEEL.getPower();
-
-        if (error > 0) {
-            power += error * k;
-        } else {
-            power -= Math.min(Math.abs(error * k), power);
-        }
-
-        power = Math.max(0, Math.min(1, power));
-        WHEEL.setPower(power);
-    }
 
 
 
@@ -213,13 +246,27 @@ public class ShootWheels {
 
     }
 
-    public void AutoSHOOT(LimeLight limeLight)
+    public void AutoSHOOT(LimeLight limeLight, HardwareMap hardwareMap, Telemetry telemetry)
     {
         double currentPos = WHEEL.getCurrentPosition();
 
         distance = limeLight.distance;
 
-        targetPosition = -0.01526*Math.pow(distance, 2) + 0.13556*distance + 0.35106;
+        double idealVoltage = 13.50;
+
+        double currentVoltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
+
+        double base = -0.01526*Math.pow(distance, 2) + 0.13556*distance + 0.35106;
+
+        double compensation = idealVoltage / currentVoltage;
+
+        double targetPosition = base * compensation;
+
+
+        telemetry.addData(String.valueOf(WHEEL.getPower()), "POWER");
+
+        telemetry.addData(String.valueOf(hood.getPosition()), "HOOD");
+
 
 
 
@@ -238,6 +285,13 @@ public class ShootWheels {
         WHEEL.setPower(targetPosition);
 
     }
+
+
+//    private void setColor(int r, int g, int b) {
+//        PrismAnimations.Solid newSolid = new PrismAnimations.Solid(new Color(r, g, b));
+//        prism.insertAndUpdateAnimation(LayerHeight.LAYER_0, newSolid);
+//    }
+
 
 
 }

@@ -12,9 +12,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 //TODO - Code the intake
 public class Intake {
-    private DcMotor spin_input; //Spin Input
+    public DcMotor spin_input; //Spin Input
 
-    private CRServo intakepart;
+    public boolean IntakeON;
+    public CRServo intakepart;
     public Intake(HardwareMap hardwareMap)
     {
         //TODO - DEFINE MOTORS
@@ -50,10 +51,22 @@ public class Intake {
     }
 
 
+
+
     void Display_Telemetry(Telemetry telemetry)
     {
         //TODO - Code Telemetry
         //and example of telem
         //telemetry.addData("TEST", FAKEVAR);
+    }
+
+    public void IntakeON()
+    {
+        IntakeON = true;
+    }
+
+    public void  IntakeOFF()
+    {
+        IntakeON = false;
     }
 }
