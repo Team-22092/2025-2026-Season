@@ -61,6 +61,7 @@ public class ColorTest {
     private static final Color RED   = new Color(255, 0, 0 );
     private static final Color GREEN = new Color(0, 255, 0);
 
+
     /**
      * Constructor - inserts three animations (background, range, dot) once.
      */

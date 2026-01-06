@@ -144,7 +144,7 @@ public class RedSideShoot extends LinearOpMode {
                 .strafeTo(new Vector2d(35, 32))
 
 
-                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-207.5))
+                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-206))
 
                 .afterTime(0, new InstantAction(sort::CarroselOff))
                 .afterTime(0, new InstantAction(intake::IntakeOFF))

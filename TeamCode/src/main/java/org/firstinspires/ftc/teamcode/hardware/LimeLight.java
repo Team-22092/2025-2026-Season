@@ -117,19 +117,21 @@ public class LimeLight {
                 //print the id
                 //telemetry.addData("ID", fr.getFiducialId()); //TODO - REMOVE THIS LATER
                 //Define the patterns
-                if (fr.getFiducialId() == 23) {
-                    telemetry.addData("Pattern", "[Purple] [Purple] [Green]");
-                    Parts.clear();
-                    Parts.add("P"); Parts.add("P"); Parts.add("G");
-                } else if (fr.getFiducialId() == 21) {
-                    telemetry.addData("Pattern", "[Green] [Purple] [Purple]");
-                    Parts.clear();
-                    Parts.add("G"); Parts.add("P"); Parts.add("P");
-                } else if (fr.getFiducialId() == 22) {
-                    telemetry.addData("Pattern", "[Purple] [Green] [Purple]");
-                    Parts.clear();
-                    Parts.add("P"); Parts.add("G"); Parts.add("P");
-                } else if (fr.getFiducialId() == 24) {
+
+                // if (fr.getFiducialId() == 23) {
+                //                    telemetry.addData("Pattern", "[Purple] [Purple] [Green]");
+                //                    Parts.clear();
+                //                    Parts.add("P"); Parts.add("P"); Parts.add("G");
+                //                } else if (fr.getFiducialId() == 21) {
+                //                    telemetry.addData("Pattern", "[Green] [Purple] [Purple]");
+                //                    Parts.clear();
+                //                    Parts.add("G"); Parts.add("P"); Parts.add("P");
+                //                } else if (fr.getFiducialId() == 22) {
+                //                    telemetry.addData("Pattern", "[Purple] [Green] [Purple]");
+                //                    Parts.clear();
+                //                    Parts.add("P"); Parts.add("G"); Parts.add("P");
+                //                } else
+                if (fr.getFiducialId() == 24) {
                     distance = computeDistanceToFiducial(fr, colorTest, telemetry); // meter
                     telemetry.addData("Dist", "%.2f", distance);
                 } else if (fr.getFiducialId() == 20){
@@ -215,7 +217,7 @@ public class LimeLight {
         //telemetry.addData("ANGLE OF YAW", yaw);
 
 // center zone (strict): -6 .. 4
-        boolean inMainCenter = (yaw > -4 && yaw < 7);
+        boolean inMainCenter = (yaw > -4 && yaw < 9.1);
 
         if (inMainCenter) {
             // fully centered
@@ -232,6 +234,8 @@ public class LimeLight {
         }
 
 // telemetry so we can debug quickly
+        telemetry.addData("ANGLE", tagPoseCamera.getOrientation().getYaw());
+
 
         telemetry.update();
 

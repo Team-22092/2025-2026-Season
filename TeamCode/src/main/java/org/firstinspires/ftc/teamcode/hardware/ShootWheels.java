@@ -100,13 +100,11 @@ public class ShootWheels {
 
             double currentVoltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
 
-            double base = -0.01885*Math.pow(distance, 2) + 0.13790*distance + 0.34232;
-
-          //  double base = -0.01782*Math.pow(distance, 2) + 0.13780*distance + 0.39066;
+            double base = -0.01885*Math.pow(distance, 2) + 0.13790*distance + 0.36232;
 
             double compensation = idealVoltage / currentVoltage;
 
-            double targetPosition = base * compensation;
+            //double targetPosition = base * compensation;
 
 
 
@@ -119,9 +117,7 @@ public class ShootWheels {
 
 
 
-            pos =  0.00229*Math.pow(distance, 2) + -0.02398*distance + 0.72793;
-            //pos = 0.00230*Math.pow(distance, 2) + -0.02402*distance + 0.72796;
-
+           // pos =  0.00229*Math.pow(distance, 2) + -0.02398*distance + 0.73793;
 
 
 
@@ -256,7 +252,7 @@ public class ShootWheels {
 
         double currentVoltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
 
-        double base = -0.01526*Math.pow(distance, 2) + 0.13556*distance + 0.34106;
+        double base = -0.01526*Math.pow(distance, 2) + 0.13556*distance + 0.35106;
 
         double compensation = idealVoltage / currentVoltage;
 
@@ -273,7 +269,7 @@ public class ShootWheels {
         //    pos = 0.00075*Math.pow(distance, 2) + -0.03851*distance + 0.74990;
         //pos = 0.00918*Math.pow(distance, 2) + -0.06259*distance + 0.75987;
 
-        pos =  0.00305*Math.pow(distance, 2) + -0.02711*distance + 0.72979;
+        pos =  0.00305*Math.pow(distance, 2) + -0.02711*distance + 0.74979;
 
         //pos = 0.00171*Math.pow(distance,2) + -0.02322*distance + 0.72784;
 
