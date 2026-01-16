@@ -11,6 +11,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -31,6 +32,11 @@ import java.util.List;
 
 public class LimeLight {
     //LimeLight3a Var
+
+    private CRServo turretServo;
+    private double acceptableTurretErrorDeg = 1.5;
+
+
     private Limelight3A limelight;
 
     private DcMotor limelight_detector;
@@ -46,6 +52,9 @@ public class LimeLight {
     public LimeLight(HardwareMap hardwareMap, Telemetry telemetry) {
         //set hardware map
         limelight = hardwareMap.get(Limelight3A.class, "limelight"); //the hardware map is setting the name.
+
+        turretServo = hardwareMap.get(CRServo.class, "TR");
+
         //MOTOR FOR SHOOTING
         //limelight_detector = hardwareMap.get(DcMotor.class, "LLD");
 
@@ -58,7 +67,6 @@ public class LimeLight {
         //2 = Green Balls
 
         limelight.pipelineSwitch(0);
-
 
         //Changes to detection
 
@@ -114,58 +122,66 @@ public class LimeLight {
 
             if (!fiducials.isEmpty()) { //skip if theres no tags detected, but if there is, keep going
                 LLResultTypes.FiducialResult fr = fiducials.get(0); //get the first valid tag from the camera
+
+                Pose3D tagPoseCamera = fr.getTargetPoseCameraSpace();
+
+
                 //print the id
                 //telemetry.addData("ID", fr.getFiducialId()); //TODO - REMOVE THIS LATER
                 //Define the patterns
 
-                // if (fr.getFiducialId() == 23) {
-                //                    telemetry.addData("Pattern", "[Purple] [Purple] [Green]");
-                //                    Parts.clear();
-                //                    Parts.add("P"); Parts.add("P"); Parts.add("G");
-                //                } else if (fr.getFiducialId() == 21) {
-                //                    telemetry.addData("Pattern", "[Green] [Purple] [Purple]");
-                //                    Parts.clear();
-                //                    Parts.add("G"); Parts.add("P"); Parts.add("P");
-                //                } else if (fr.getFiducialId() == 22) {
-                //                    telemetry.addData("Pattern", "[Purple] [Green] [Purple]");
-                //                    Parts.clear();
-                //                    Parts.add("P"); Parts.add("G"); Parts.add("P");
-                //                } else
+
                 if (fr.getFiducialId() == 24) {
                     distance = computeDistanceToFiducial(fr, colorTest, telemetry); // meter
                     telemetry.addData("Dist", "%.2f", distance);
+
+                    if (tagPoseCamera != null) {
+
+                        // camera-space coords (meters)
+                        double x = tagPoseCamera.getPosition().x; // left/right
+                        double z = tagPoseCamera.getPosition().z; // forward
+
+                        // angle to tag (deg), 0 = centered
+                        double angleDeg = Math.toDegrees(Math.atan2(x, z));
+
+                        telemetry.addData("TagYawDeg", "%.2f", angleDeg);
+
+                        // error is just the angle (we want 0)
+                        double errorDeg = angleDeg;
+
+                        if (Math.abs(errorDeg) > acceptableTurretErrorDeg) {
+
+                           double kP = 0.0155;
+                            double turretPower = errorDeg * kP;
+
+                            turretPower = clamp(turretPower, -1, 1);
+                            turretServo.setPower(turretPower);
+
+                            telemetry.addData("TurretPower", "%.3f", turretPower);
+                        }
+                        else {
+                            // close enough, stop spinning
+                            turretServo.setPower(0.0);
+                            telemetry.addData("Turret", "Centered");
+                        }
+
+
+
+
+
+
                 } else if (fr.getFiducialId() == 20){
                     distance = computeDistanceToFiducial(fr, colorTest, telemetry); // meter
                     telemetry.addData("Dist", "%.2f", distance);
                 }
+                } else {
+                    // lost pose → stop turret
+                    turretServo.setPower(0.0);
+                    telemetry.addData("Turret", "No Pose");
+                }
 
 
 
-//
-//                double yaw = orientation.getYaw();
-//
-//
-//                boolean inMainCenter = (yaw > -35 && yaw < 45);
-//
-//                boolean inSpecialCenter = (yaw > -45 && yaw < -35);
-//
-//
-//                if (inMainCenter || inSpecialCenter) {
-//                    colorTest.centered = true;
-//                    colorTest.moveRight = false;
-//                }
-//
-//                else if (yaw >= 13) {
-//                    colorTest.centered = false;
-//                    colorTest.moveRight = true;
-//                }
-//
-//                else if (yaw <= -13) {
-//                    colorTest.centered = false;
-//                    colorTest.moveRight = false;
-//                }
-//
-//
 
 
 
@@ -178,25 +194,6 @@ public class LimeLight {
 
     } //end of Lime Light Op Mode
 
-
-//    public double returnVals(double numbers)
-//    {
-//        if(numbers == 0) //Return Distance.
-//        {
-//            return distance;
-//        }
-//
-//        else{
-//            return 0;
-//        }
-//    }
-
-
-    // compute euclidean distance (meters) from the camera to the fiducial by using the pose in camera space
-    // brainrot: this code is glued together with duct tape and pure courage
-    // compute euclidean distance (meters) from the camera to the fiducial by using the pose in camera space
-// brainrot: this code is glued together with duct tape and pure courage (and now a little logic)
-    double thresholdDeg = 1;
     public double computeDistanceToFiducial(LLResultTypes.FiducialResult fr, ColorTest colorTest, Telemetry telemetry) {
         if (fr == null) return 0;
         Pose3D tagPoseCamera = fr.getTargetPoseCameraSpace();
@@ -238,6 +235,10 @@ public class LimeLight {
 
 
         telemetry.update();
+
+
+
+
 
 
 

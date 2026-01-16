@@ -47,7 +47,7 @@ public class SAVESHOTS {
 
     public void IntakeOpMode(Gamepad gamepad2, ShootWheels shootWheels) {
         if (gamepad2.touchpad) {
-            saveShot(shootWheels.WHEEL.getPower(), ShootWheels.hood.getPosition(), ShootWheels.distance);
+          //  saveShot(shootWheels.WHEEL.getPower(), ShootWheels.hood.getPosition(), ShootWheels.distance);
         }
     }
 }

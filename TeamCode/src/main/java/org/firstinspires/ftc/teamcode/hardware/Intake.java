@@ -15,7 +15,7 @@ public class Intake {
     public DcMotor spin_input; //Spin Input
 
     public boolean IntakeON;
-    public CRServo intakepart;
+    //public CRServo intakepart;
     public Intake(HardwareMap hardwareMap)
     {
         //TODO - DEFINE MOTORS
@@ -23,7 +23,7 @@ public class Intake {
         spin_input.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); //RUN WITHOUT TRACKING
         spin_input.setDirection(DcMotor.Direction.REVERSE  ); //SPIN IT BACKWARDS
 
-        intakepart = hardwareMap.get(CRServo.class, "IN");
+      //  intakepart = hardwareMap.get(CRServo.class, "IN");
 
 
     }
@@ -36,16 +36,16 @@ public class Intake {
         if(Gamepad2.a)
         {
             spin_input.setPower(1);
-            intakepart.setPower(1);
+           // intakepart.setPower(1);
         }
         else if(Gamepad2.options)
         {
             spin_input.setPower(-1);
-            intakepart.setPower(-1);
+           // intakepart.setPower(-1);
         }
         else {
             spin_input.setPower(0);
-            intakepart.setPower(0);
+           // intakepart.setPower(0);
         }
 
     }

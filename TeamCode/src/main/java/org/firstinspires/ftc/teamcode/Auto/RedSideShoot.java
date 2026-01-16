@@ -296,7 +296,7 @@ public class RedSideShoot extends LinearOpMode {
                     if(intake.IntakeON)
                     {
                         intake.spin_input.setPower(1);
-                        intake.intakepart.setPower(1);
+                      //  intake.intakepart.setPower(1);
 
                     }
 
