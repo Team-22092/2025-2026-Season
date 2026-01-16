@@ -38,17 +38,10 @@ public class LimeLight {
 
 
     private Limelight3A limelight;
-
-    private DcMotor limelight_detector;
-
     private IMU imu;
     public double distance = 0;
 
-
-    double angle;
-
-
-    //start code (when the robot is started, ran in teleopMain.java
+  //the start code for the LimeLight
     public LimeLight(HardwareMap hardwareMap, Telemetry telemetry) {
         //set hardware map
         limelight = hardwareMap.get(Limelight3A.class, "limelight"); //the hardware map is setting the name.
@@ -65,12 +58,13 @@ public class LimeLight {
         //0 = AprilTags
         //1 = Purple Balls
         //2 = Green Balls
+        //3 = Detect the pattern, ONLY FOR AUTO (in GetColors)
 
         limelight.pipelineSwitch(0);
 
         //Changes to detection
 
-        //Get the imu
+        //Get the imu, this is for limelight positioning
         imu = hardwareMap.get(IMU.class, "imu");
         //Get the orientation of the limelight on the robot
         RevHubOrientationOnRobot revHubOrientationOnRobot = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, //Might need to be updated
@@ -79,7 +73,7 @@ public class LimeLight {
         imu.initialize(new IMU.Parameters(revHubOrientationOnRobot));
 
 
-
+        //start the limelight
         limelight.start();
 
 
@@ -89,60 +83,61 @@ public class LimeLight {
         telemetry.addData("Limelight On, Returning, this is updated: ", limelight.getStatus()); //Get limelight status
         telemetry.update();
     } //end of Lime Light
-    YawPitchRollAngles orientation;
 
     public List<String> Parts = new ArrayList<>();
 
 
-    public void LimeLightOpMode(Telemetry telemetry, ColorTest colorTest) //final code wont have telem value, this is for testing //TODO turn this into a double to pull Yaw val for WHEELS
+    public void LimeLightOpMode(Telemetry telemetry, ColorTest colorTest) //final code wont have telem value, this is for testing
     {
-
-        limelight.pipelineSwitch(0);
-
-        if (limelight == null) { //If we can detect the limelight
-            //TODO - REMOVE THIS LATER
-            //TODO - MOVE THIS TO Display_Telemetry
-            telemetry.addData("limelight", "Not on"); // debug we cant see it
-            return; // end
-        }
-
-
-        //Get angles
-        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+        /*
+            This block (Yaw, Limelight, LLResult) was moved up for better limelight pipeline switching.
+        */
+        YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles(); //Get angles of the robot
         limelight.updateRobotOrientation(orientation.getYaw()); //get the yaw from the rev hub, way more accurate.
         LLResult result = limelight.getLatestResult(); //Pull the results from the limelight
 
-        //telemetry.addData("Have we", "Pushed?");
+        if(result.getPipelineIndex() != 0); //we want to avoid trying to update it every frame, as this could cause slowness if they haven't factored in switching
+        {
+            limelight.pipelineSwitch(0); // we attempt to switch it, this is for auto.
+        }
+
+
+        
+        //TODO - REMOVE THIS LATER //TODO - MOVE THIS TO Display_Telemetry
+        if (limelight == null) { telemetry.addData("limelight", "Not on"); } // debug we cant find the limelight
+
+
+
+
 
         //colorTest.moveRight = false;
-        if(result != null && result.isValid()) { //If the result isn't nothing, and its valid, keep going
+        if(result.isValid()) { //If its valid, keep going
 
 
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults(); //LL Result types is latest results from the camera, the FiducialResults is valid april tags, and we have a list of them.
 
             if (!fiducials.isEmpty()) { //skip if theres no tags detected, but if there is, keep going
-                LLResultTypes.FiducialResult fr = fiducials.get(0); //get the first valid tag from the camera
+                LLResultTypes.FiducialResult fr = fiducials.get(0); //get the first valid tag from the camera.
 
-                Pose3D tagPoseCamera = fr.getTargetPoseCameraSpace();
-
-
-                //print the id
-                //telemetry.addData("ID", fr.getFiducialId()); //TODO - REMOVE THIS LATER
-                //Define the patterns
+                Pose3D tagPoseCamera = fr.getTargetPoseCameraSpace(); //get the tag in 3d positioning space
 
 
-                if (fr.getFiducialId() == 24) {
+                /*
+                    This next block checks what the tag is (because we want to avoid some tags when driving and stuff
+                    we check tags 24 and 20, as they are the marked ones for the shooter.
+                */
+                if (fr.getFiducialId() == 24) { // if our tag returns with the results (24) (red side)
                     distance = computeDistanceToFiducial(fr, colorTest, telemetry); // meter
                     telemetry.addData("Dist", "%.2f", distance);
 
                     if (tagPoseCamera != null) {
 
-                        // camera-space coords (meters)
+                        //camera space, (in M)
                         double x = tagPoseCamera.getPosition().x; // left/right
                         double z = tagPoseCamera.getPosition().z; // forward
 
                         // angle to tag (deg), 0 = centered
-                        double angleDeg = Math.toDegrees(Math.atan2(x, z));
+                        double angleDeg = Math.toDegrees(Math.atan2(x, z)); //we get the angle of pitch with x and z.
 
                         telemetry.addData("TagYawDeg", "%.2f", angleDeg);
 
@@ -205,41 +200,11 @@ public class LimeLight {
 
         double dist = Math.sqrt(x * x + y * y + z * z);
 
-        double yaw = tagPoseCamera.getOrientation().getYaw();
-        //double yawDeg = Math.toDegrees(yawRad);
-
-
-
-
-        //telemetry.addData("ANGLE OF YAW", yaw);
-
-// center zone (strict): -6 .. 4
-        boolean inMainCenter = (yaw > -4 && yaw < 9.1);
-
-        if (inMainCenter) {
-            // fully centered
-            colorTest.centered = true;
-
-            colorTest.moveRight = false;
-        }
-        else {
-
-            colorTest.centered = false;
-
-            colorTest.moveRight = (yaw > 0);
-
-        }
-
 // telemetry so we can debug quickly
         telemetry.addData("ANGLE", tagPoseCamera.getOrientation().getYaw());
 
-
+//we used to have a lightbar hear, its been removed.
         telemetry.update();
-
-
-
-
-
 
 
         return dist;
