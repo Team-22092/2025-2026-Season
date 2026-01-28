@@ -251,24 +251,24 @@ public class RedSideShoot extends LinearOpMode {
             while (opModeIsActive() && SORT.get()) {
                 try {
 
-                    if(sort.carroselOn)
-                    {
-                        sort.sort.setPosition(sortposup[0]);
-                        if(sortposup[0] >= 1)
-                        {
-                            flipdir[0] = !flipdir[0];
-                        }
-                        if(sortposup[0] <= 0){
-                            flipdir[0] = !flipdir[0];
-                        }
-
-
-                        if(flipdir[0])    sortposup[0] = (float) (sortposup[0] + 0.015);
-
-                        if(!flipdir[0])    sortposup[0] = (float) (sortposup[0] - 0.015);
-
-
-                    }
+//                    if(sort.carroselOn) //@hack CHANGED CARROSELON, NEEDS TO BE FIXED.
+//                    {
+//                        sort.sort.setPosition(sortposup[0]);
+//                        if(sortposup[0] >= 1)
+//                        {
+//                            flipdir[0] = !flipdir[0];
+//                        }
+//                        if(sortposup[0] <= 0){
+//                            flipdir[0] = !flipdir[0];
+//                        }
+//
+//
+//                        if(flipdir[0])    sortposup[0] = (float) (sortposup[0] + 0.015);
+//
+//                        if(!flipdir[0])    sortposup[0] = (float) (sortposup[0] - 0.015);
+//
+//
+//                    }
 
 
 

@@ -101,6 +101,7 @@ public class ShootWheels {
             wheelOn = !wheelOn;
         }
 
+
         if(wheelOn) {
 
             if(gamepadTwo.dpad_up && !gamepad2Old.dpad_up)
@@ -108,7 +109,7 @@ public class ShootWheels {
                 WheelL = !WheelL;
 
                 if(WheelL){
-                    WHEEL_L.setPower(0.6);
+                    WHEEL_L.setPower(0.8);
                 }else{
                     WHEEL_L.setPower(0);
                 }
@@ -119,7 +120,7 @@ public class ShootWheels {
                 WheelR = ! WheelR;
 
                 if(WheelR){
-                    WHEEL_R.setPower(0.6);
+                    WHEEL_R.setPower(0.8);
                 }else{
                     WHEEL_R.setPower(0);
                 }

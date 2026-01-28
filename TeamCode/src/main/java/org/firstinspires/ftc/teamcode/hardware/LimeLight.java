@@ -30,6 +30,13 @@ import java.util.List;
 
 
 
+//  # @note INFO
+//These comments use a custom extension to render things like, images, styles, and tags
+//please have the extension enabled for the code to make sense
+
+// @img(https://github.com/Team-22092/2024-2025-Season/raw/main/docs/logo.png)
+
+
 public class LimeLight {
     //LimeLight3a Var
 
@@ -86,6 +93,12 @@ public class LimeLight {
 
     public List<String> Parts = new ArrayList<>();
 
+    // === Turret search config ===
+    private static final double SEARCH_POWER = 0.35; // power when we dont see it.
+    private static final long SEARCH_FLIP_MS = 700;  // flip direction every 0.7s
+
+    private long lastSearchFlipTime = 0;
+    private int searchDirection = 1; // 1 or -1
 
     public void LimeLightOpMode(Telemetry telemetry, ColorTest colorTest) //final code wont have telem value, this is for testing
     {
@@ -127,50 +140,53 @@ public class LimeLight {
                     we check tags 24 and 20, as they are the marked ones for the shooter.
                 */
                 if (fr.getFiducialId() == 24) { // if our tag returns with the results (24) (red side)
-                    distance = computeDistanceToFiducial(fr, colorTest, telemetry); // meter
-                    telemetry.addData("Dist", "%.2f", distance);
 
+                    //get the distance from the tag.
+                    distance = computeDistanceToFiducial(fr, telemetry);
+
+                    //double check that the tag pos in 3d space isn't null.
                     if (tagPoseCamera != null) {
 
-                        //camera space, (in M)
+                        // Get the tag's X pos, and depth (Z)
+                        // @img(https://buzzcoder.gitbooks.io/codecraft-hour-of-code-js/content/assets/3D_coordinate_system.png)
+   /// this chart reflects the pos, and thats what we do for @line(148)
                         double x = tagPoseCamera.getPosition().x; // left/right
                         double z = tagPoseCamera.getPosition().z; // forward
 
                         // angle to tag (deg), 0 = centered
-                        double angleDeg = Math.toDegrees(Math.atan2(x, z)); //we get the angle of pitch with x and z.
-
+                        double angleDeg = Math.toDegrees(Math.atan2(x, z));
                         telemetry.addData("TagYawDeg", "%.2f", angleDeg);
 
-                        // error is just the angle (we want 0)
                         double errorDeg = angleDeg;
 
                         if (Math.abs(errorDeg) > acceptableTurretErrorDeg) {
 
-                           double kP = 0.0155;
+                            double kP = 0.0155;
                             double turretPower = errorDeg * kP;
 
-                            turretPower = clamp(turretPower, -1, 1);
-                            turretServo.setPower(turretPower);
+                            // Clamp AND add minimum power to avoid stalling
+                            turretPower = clamp(turretPower, -0.7, 0.7);
+                            if (Math.abs(turretPower) < 0.08) {
+                                turretPower = Math.copySign(0.08, turretPower);
+                            }
 
+                            turretServo.setPower(turretPower * -1); // one gear causes this.
                             telemetry.addData("TurretPower", "%.3f", turretPower);
-                        }
-                        else {
-                            // close enough, stop spinning
+                        } else {
+
                             turretServo.setPower(0.0);
                             telemetry.addData("Turret", "Centered");
                         }
+                    }
+                }
 
-
-
-
-
-
-                } else if (fr.getFiducialId() == 20){
-                    distance = computeDistanceToFiducial(fr, colorTest, telemetry); // meter
+                //if we see the limelight id code as (20)
+                 else if (fr.getFiducialId() == 20){
+                    distance = computeDistanceToFiducial(fr, telemetry); // meter
                     telemetry.addData("Dist", "%.2f", distance);
                 }
-                } else {
-                    // lost pose → stop turret
+                 else {
+                    // if we cannot detect the pos, stop the turret.
                     turretServo.setPower(0.0);
                     telemetry.addData("Turret", "No Pose");
                 }
@@ -183,13 +199,13 @@ public class LimeLight {
             }
 
         }
-        else{
-            colorTest.centered = false;
-        }
+
+
+
 
     } //end of Lime Light Op Mode
 
-    public double computeDistanceToFiducial(LLResultTypes.FiducialResult fr, ColorTest colorTest, Telemetry telemetry) {
+    public double computeDistanceToFiducial(LLResultTypes.FiducialResult fr, Telemetry telemetry) {
         if (fr == null) return 0;
         Pose3D tagPoseCamera = fr.getTargetPoseCameraSpace();
         if (tagPoseCamera == null) return 0;
@@ -203,18 +219,23 @@ public class LimeLight {
 // telemetry so we can debug quickly
         telemetry.addData("ANGLE", tagPoseCamera.getOrientation().getYaw());
 
-//we used to have a lightbar hear, its been removed.
-        telemetry.update();
+//we used to have a lightbar here, its been removed.
+    ;
 
 
         return dist;
     }
 
 
-    public String GetColors(float part) {
-        LLResult result = limelight.getLatestResult(); //Pull the results from the limelight
-        limelight.pipelineSwitch(3);
+    //AUTOCODE
+    //----------------------------------------------------------------------------------------------------------
 
+    public String GetColors(float part) { //AUTO CODE
+        LLResult result = limelight.getLatestResult(); //Pull the results from the limelight
+        limelight.pipelineSwitch(3); //PIPELINE 3 IS PATTERN CODE DETECTION
+
+
+        //Failsafe if we don't see anything
         if (Parts.isEmpty()) {
             Parts.add("P");
             Parts.add("P");
@@ -225,21 +246,21 @@ public class LimeLight {
         {
             return Parts.get((int) part);
         }
-        if (result.isValid()) { //If the result isn't nothing, and its valid, keep going
+        if (result.isValid()) { //If its valid, keep going
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults(); //LL Result types is latest results from the camera, the FiducialResults is valid april tags, and we have a list of them.
             if (!fiducials.isEmpty()) {
-                LLResultTypes.FiducialResult fr = fiducials.get(0);
-                if (fr.getFiducialId() == 23) {
+                LLResultTypes.FiducialResult fr = fiducials.get(0); //get the first apriltag we see (fiducials.get(0))
+                if (fr.getFiducialId() == 23) { //if we see ID23, PPG
                     Parts.clear();
                     Parts.add("P");
                     Parts.add("P");
                     Parts.add("G");
-                } else if (fr.getFiducialId() == 21) {
+                } else if (fr.getFiducialId() == 21) { //if we see ID21, GPP
                     Parts.clear();
                     Parts.add("G");
                     Parts.add("P");
                     Parts.add("P");
-                } else if (fr.getFiducialId() == 22) {
+                } else if (fr.getFiducialId() == 22) { //if we see ID22, PGP
                     Parts.clear();
                     Parts.add("P");
                     Parts.add("G");
@@ -247,7 +268,7 @@ public class LimeLight {
 
                 }}}
 
-        return Parts.get((int) part);
+        return Parts.get((int) part); // return the one we detect for the auto
     }
 
 
