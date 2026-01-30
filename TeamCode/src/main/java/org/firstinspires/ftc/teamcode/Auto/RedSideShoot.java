@@ -80,90 +80,15 @@ public class RedSideShoot extends LinearOpMode {
                 }))
 
 
-                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-209))
-//
-//
-////
-//                // timed servo actions using InstantAction
-               // .afterTime(3, new InstantAction(() -> sort.sort.setPosition(0.19)))
-                .afterTime(3, new InstantAction(() -> {
-                    if (Objects.equals(limeLight.GetColors(0), "P")) {
-                        sort.sort.setPosition(0.19);
-                    } else {
-                        sort.sort.setPosition(0.935);
-                    }
-                }))
-
-                .afterTime(3.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(4, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
-
-                .afterTime(5, new InstantAction(() -> {
-                    if (Objects.equals(limeLight.GetColors(1), "P")) {
-                        sort.sort.setPosition(0.56);
-                    } else {
-                        sort.sort.setPosition(0.935);
-                    }
-                }))
-                .afterTime(6.0, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(6.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
-
-              //  .afterTime(8.0, new InstantAction(() -> sort.sort.setPosition(0.935)))
-
-                .afterTime(8, new InstantAction(() -> {
-                    if (Objects.equals(limeLight.GetColors(2), "P") && Objects.equals(limeLight.GetColors(1), "P"))
-                    {
-                        sort.sort.setPosition(0.19);
-                    }
-
-                    else if (Objects.equals(limeLight.GetColors(2), "P")) {
-                        sort.sort.setPosition(0.56);
-                    }
-
-                    else {
-                        sort.sort.setPosition(0.935);
-                    }
-                }))
-
-                .afterTime(9.0, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(9.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
-//////
-                .afterTime(11, new InstantAction(sort::CarroselOn))
-                .afterTime(11, new InstantAction(intake::IntakeON))
+                .strafeTo(new Vector2d(60, 11))
 
 
+//  private final double[] OUTTAKEPOS = {0.9, 0.525, 0.150, 0.525};
+                .afterTime(0, new InstantAction(() -> sort.sort.setPosition(0.9)))
+                .afterTime(0.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
+                .afterTime(0.8, new InstantAction(() ->  flick.flickthing.setPosition(0.2)))
 
 
-                .waitSeconds(11)
-
-//
-                .strafeToLinearHeading(new Vector2d(39, 32), Math.toRadians(90))
-
-
-                .strafeTo(new Vector2d(40, 60), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-20, 20))
-
-                .strafeTo(new Vector2d(35, 32))
-
-
-                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-206))
-
-                .afterTime(0, new InstantAction(sort::CarroselOff))
-                .afterTime(0, new InstantAction(intake::IntakeOFF))
-
-
-
-
-
-                .afterTime(0, new InstantAction(() -> sort.sort.setPosition(0.19)))
-                .afterTime(1.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(2, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
-
-                .afterTime(3, new InstantAction(() -> sort.sort.setPosition(0.56)))
-                .afterTime(4, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(4.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
-
-                .afterTime(6, new InstantAction(() -> sort.sort.setPosition(0.935)))
-                .afterTime(7, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(7.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
 //////
                 .waitSeconds(7.6)
                 .strafeTo(new Vector2d(35, 32))

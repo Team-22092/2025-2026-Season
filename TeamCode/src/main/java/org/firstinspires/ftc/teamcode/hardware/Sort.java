@@ -41,22 +41,22 @@ public class Sort {
         }
 
         //# Old Code For @NOTE THIS IS COLLAPSEABLE
-//        if(MODE && !flick.flickup)
-//        {
-//            sort.setPosition(sortposup);
-//            if(sortposup >= 1)
-//            {
-//                flipdir = !flipdir;
-//            }
-//            if(sortposup <= 0){
-//                flipdir = !flipdir;
-//            }
-//
-//
-//            if(flipdir)    sortposup = (float) (sortposup + 0.015);
-//
-//            if(!flipdir)    sortposup = (float) (sortposup - 0.015);
-//        }
+        if(MODE)
+        {
+            sort.setPosition(sortposup);
+            if(sortposup >= 1)
+            {
+                flipdir = !flipdir;
+            }
+            if(sortposup <= 0){
+                flipdir = !flipdir;
+            }
+
+
+            if(flipdir)    sortposup = (float) (sortposup + 0.015);
+
+            if(!flipdir)    sortposup = (float) (sortposup - 0.015);
+        }
 
 
 //        if(Gamepad2.right_bumper && !oldGamepad2.right_bumper && !flick.flickup)
@@ -83,38 +83,38 @@ public class Sort {
 //
 //        }
 
-        if(Gamepad2.right_bumper && !oldGamepad2.right_bumper && !flick.flickup)
+        if(Gamepad2.right_bumper && !oldGamepad2.right_bumper)
         {
             //FIRST LETS TEST TO SEE IF WHAT MODE WE ARE ON.
 
             //WE DO THIS BY CHECKING THE KEY. around about @line(32)
-            if(MODE){ //INTAKE
-                setpos = (setpos + 1) % INTAKEPOS.length; //get the
-                sort.setPosition(INTAKEPOS[setpos]);
-            }
-            else{ //OUTTAKE
+//            if(MODE){ //INTAKE
+//                setpos = (setpos + 1) % INTAKEPOS.length; //get the
+//                sort.setPosition(INTAKEPOS[setpos]);
+//            }
+//            else{ //OUTTAKE
                 setpos = (setpos + 1) % OUTTAKEPOS.length; //get the
                 sort.setPosition(OUTTAKEPOS[setpos]);
-            }
+            //}
 
 
 
 
 
         }
-        if(Gamepad2.left_bumper && !oldGamepad2.left_bumper && !flick.flickup )
+        if(Gamepad2.left_bumper && !oldGamepad2.left_bumper )
         {
           //FIRST LETS TEST TO SEE IF WHAT MODE WE ARE ON.
 
             //WE DO THIS BY CHECKING THE KEY. around about @line(32)
-            if(MODE){ //INTAKE
-                setpos = (setpos - 1) % INTAKEPOS.length;
-                sort.setPosition(INTAKEPOS[setpos]);
-            }
-            else{ //OUTTAKE
+//            if(MODE){ //INTAKE
+//                setpos = (setpos - 1) % INTAKEPOS.length;
+//                sort.setPosition(INTAKEPOS[setpos]);
+//            }
+          //  else{ //OUTTAKE
                 setpos = (setpos - 1) % OUTTAKEPOS.length;
                 sort.setPosition(OUTTAKEPOS[setpos]);
-            }
+           // }
 
         }
 

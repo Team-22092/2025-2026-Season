@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -40,7 +41,17 @@ import java.util.List;
 public class LimeLight {
     //LimeLight3a Var
 
+
+    //TOUCH SENSOR:
+    TouchSensor LEFTTOUCH, RIGHTTOUCH;
+
+
+
+
+
     private CRServo turretServo;
+
+
     private double acceptableTurretErrorDeg = 1.5;
 
 
@@ -50,6 +61,18 @@ public class LimeLight {
 
   //the start code for the LimeLight
     public LimeLight(HardwareMap hardwareMap, Telemetry telemetry) {
+
+
+        //touchsensor
+        LEFTTOUCH = hardwareMap.get(TouchSensor.class, "LT");
+        RIGHTTOUCH = hardwareMap.get(TouchSensor.class, "RT");
+
+
+
+
+//  if (touchSensor.isPressed()){
+
+
         //set hardware map
         limelight = hardwareMap.get(Limelight3A.class, "limelight"); //the hardware map is setting the name.
 
@@ -94,7 +117,7 @@ public class LimeLight {
     public List<String> Parts = new ArrayList<>();
 
     // === Turret search config ===
-    private static final double SEARCH_POWER = 0.35; // power when we dont see it.
+    private static final double SEARCH_POWER = 0.2; // power when we dont see it.
     private static final long SEARCH_FLIP_MS = 700;  // flip direction every 0.7s
 
     private long lastSearchFlipTime = 0;
@@ -155,7 +178,6 @@ public class LimeLight {
 
                         // angle to tag (deg), 0 = centered
                         double angleDeg = Math.toDegrees(Math.atan2(x, z));
-                        telemetry.addData("TagYawDeg", "%.2f", angleDeg);
 
                         double errorDeg = angleDeg;
 
@@ -171,11 +193,11 @@ public class LimeLight {
                             }
 
                             turretServo.setPower(turretPower * -1); // one gear causes this.
-                            telemetry.addData("TurretPower", "%.3f", turretPower);
+
                         } else {
 
                             turretServo.setPower(0.0);
-                            telemetry.addData("Turret", "Centered");
+
                         }
                     }
                 }
@@ -185,11 +207,7 @@ public class LimeLight {
                     distance = computeDistanceToFiducial(fr, telemetry); // meter
                     telemetry.addData("Dist", "%.2f", distance);
                 }
-                 else {
-                    // if we cannot detect the pos, stop the turret.
-                    turretServo.setPower(0.0);
-                    telemetry.addData("Turret", "No Pose");
-                }
+
 
 
 
@@ -197,9 +215,47 @@ public class LimeLight {
 
 
             }
+            else {
+//                // 🧹 SEARCH MODE (no tag detected)
+//
+//                // If we hit right wall, go left
+//                if (RIGHTTOUCH.isPressed()) {
+//                    searchDirection = -1;
+//
+//                }
+//
+//                // If we hit left wall, go right
+//                if (LEFTTOUCH.isPressed()) {
+//                    searchDirection = 1;
+//
+//                }
+//
+//                turretServo.setPower(-searchDirection * SEARCH_POWER);
+
+            }
+
 
         }
+        else {
+            // 🧹 SEARCH MODE (no tag detected)
 
+
+//            // If we hit right wall, go left
+//            if (RIGHTTOUCH.isPressed()) {
+//                searchDirection = -1;
+//
+//            }
+//
+//            // If we hit left wall, go right
+//            if (LEFTTOUCH.isPressed()) {
+//                searchDirection = 1;
+//
+//            }
+//
+//  v
+//            turretServo.setPower( -searchDirection * SEARCH_POWER);
+
+        }
 
 
 
@@ -217,7 +273,6 @@ public class LimeLight {
         double dist = Math.sqrt(x * x + y * y + z * z);
 
 // telemetry so we can debug quickly
-        telemetry.addData("ANGLE", tagPoseCamera.getOrientation().getYaw());
 
 //we used to have a lightbar here, its been removed.
     ;

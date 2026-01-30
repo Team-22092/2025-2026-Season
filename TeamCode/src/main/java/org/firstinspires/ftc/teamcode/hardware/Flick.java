@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Flick {
     public Servo flickthing; //servo of Our Flicker
 
-    public boolean flickup;
+    private boolean flickup;
 
     public Flick(HardwareMap hardwareMap)
     {
@@ -27,21 +27,22 @@ public class Flick {
         if(Gamepad2.b)
         {
 
-         flickthing.setPosition(0);
+         flickthing.setPosition(0.57);
          flickup = true;
 
         }
         else {
-            flickthing.setPosition(0.40);
+            flickthing.setPosition(0.05);
             flickup = false;
         }
 
 
     }
 
-    public void SortTelem(Telemetry telemetry)
+    public void SortTelem(Telemetry telemetry, Gamepad Gamepad2)
     {
         telemetry.addData("SetPos", setpos);
+        telemetry.addData("SetPos", Gamepad2.b);
         // telemetry.addData("ServoPos", sort.getPosition());
     }
 

@@ -119,6 +119,8 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
        colorTest.COLOR();
 
+       flick.SortTelem(telemetry, gamepad2);
+
           //Gets the copilot buttons and sends it to spin the motors
 
         //LIMELIGHTPULL

@@ -61,8 +61,7 @@ public class ColorTest {
         prism.insertAndUpdateAnimation(RG_LAYER, whiteRangeAnim);
 
         if (telemetry != null) {
-            telemetry.addLine("ColorTest initialized");
-            telemetry.addData("White LEDs", START_INDEX + "–" + END_INDEX);
+
             telemetry.update();
         }
     }
