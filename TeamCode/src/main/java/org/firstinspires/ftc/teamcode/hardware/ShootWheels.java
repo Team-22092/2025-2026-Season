@@ -94,9 +94,10 @@ public class ShootWheels {
                 targetPosition -= 0.05;
             }
 
-            targetPosition = 0.654 + (-0.0888* distance) + Math.pow(0.036 * distance , 2);
-             pos = 0.349 + (0.0157 * distance) + Math.pow(0.0361 * distance, 2);
-            
+            targetPosition = -0.01526 * Math.pow(distance, 2) + 0.13556 * distance + 0.40106;
+            pos =  -0.54 + 0.888 * distance - 0.176 * Math.pow(distance, 2);
+          //  0.384 + 0.215x + -0.0421x^2
+//
             pos = Math.max(0.0, Math.min(1.0, pos));
             hood.setPosition(pos);
 
@@ -161,12 +162,12 @@ public class ShootWheels {
         double autoCompensation = idealVoltage / currentVoltage;
 
         // Regression for power
-        double base = -0.01526 * Math.pow(distance, 2) + 0.13556 * distance + 0.35106;
+        double base = -0.01526 * Math.pow(distance, 2) + 0.13556 * distance + 0.32106;
         double targetPower = base * autoCompensation;
 
         // Regression for hood position
-        pos = 0.00305 * Math.pow(distance, 2) + -0.02711 * distance + 0.74979;
-        pos = Math.max(0.0, Math.min(1.0, pos));
+
+        pos =  -0.54 + 0.888 * distance - 0.176 * Math.pow(distance, 2);
         hood.setPosition(pos);
 
         WHEEL_L.setPower(targetPower);

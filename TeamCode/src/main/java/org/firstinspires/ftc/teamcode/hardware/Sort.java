@@ -143,11 +143,11 @@ public class Sort {
     }
 
     public void CarroselOn() {
-        //carroselOn = true;
+        MODE = true;
     }
 
     public void CarroselOff()
     {
-       //carroselOn = false;
+        MODE = false;
     }
 }

@@ -32,9 +32,8 @@ import org.firstinspires.ftc.teamcode.hardware.Sort;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Autonomous(name = "OnSkibAutoFRRRR")
+@Autonomous(name = "REDOnSkibAutoFRRRR")
 public class RedSideShoot extends LinearOpMode {
-
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -46,8 +45,10 @@ public class RedSideShoot extends LinearOpMode {
         final float[] sortposup = {0};
         final boolean[] flipdir = new boolean[1];
 
-
         ColorTest colorTest = new ColorTest(hardwareMap, telemetry);
+
+
+
 
         Intake intake = new Intake(hardwareMap);
 
@@ -56,11 +57,13 @@ public class RedSideShoot extends LinearOpMode {
 
 
         // TODO - MAKE SURE TO UPDATE INITIAL POSITION
-        Pose2d initialPose =  new Pose2d(69, 11, Math.toRadians(180));
+        Pose2d initialPose =  new Pose2d(69, 11, Math.toRadians(-180));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
 
         Action MainAction = drive.actionBuilder(initialPose)
 
+
+                .afterTime(4.5, new InstantAction(() ->  flick.flickthing.setPosition(0)))
 
                 .afterTime(0, new InstantAction(() -> {
 
@@ -68,32 +71,138 @@ public class RedSideShoot extends LinearOpMode {
                     String c1 = limeLight.GetColors(1);
 
                     if (c0.equals("P") && c1.equals("G")) {
-                        sort.sort.setPosition(0.19);
+                        sort.sort.setPosition(0.150);
                     }
                     else if (c0.equals("P") && c1.equals("P")) {
-                        sort.sort.setPosition(0.56);
+                        sort.sort.setPosition(0.525);
                     }
                     else if (c0.equals("G") && c1.equals("P")) {
-                        sort.sort.setPosition(0.935);
+                        sort.sort.setPosition(0.9);
                     }
 
                 }))
 
+                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-209))
+                .afterTime(3, new InstantAction(() -> {
+                    if (Objects.equals(limeLight.GetColors(0), "P")) {
+                        sort.sort.setPosition(0.150);
+                    } else {
+                        sort.sort.setPosition(0.9);
+                    }
+                }))
+                .afterTime(4, new InstantAction(() -> flick.flickthing.setPosition(0.57)))
+                .afterTime(4.5, new InstantAction(() ->  flick.flickthing.setPosition(0.05)))
 
-                .strafeTo(new Vector2d(60, 11))
+                .afterTime(5, new InstantAction(() -> {
+                    if (Objects.equals(limeLight.GetColors(1), "P")) {
+                        sort.sort.setPosition(0.525);
+                    } else {
+                        sort.sort.setPosition(0.9);
+                    }
+                }))
+                .afterTime(6.0, new InstantAction(() -> flick.flickthing.setPosition(0.57)))
+                .afterTime(6.5, new InstantAction(() ->  flick.flickthing.setPosition(0.05)))
+
+                .afterTime(8, new InstantAction(() -> {
+                    if (Objects.equals(limeLight.GetColors(2), "P") && Objects.equals(limeLight.GetColors(1), "P"))
+                    {
+                        sort.sort.setPosition(0.150);
+                    }
+
+                    else if (Objects.equals(limeLight.GetColors(2), "P")) {
+                        sort.sort.setPosition(0.525);
+                    }
+
+                    else {
+                        sort.sort.setPosition(0.9);
+                    }
+                }))
+
+                .afterTime(9.0, new InstantAction(() -> flick.flickthing.setPosition(0.57)))
+                .afterTime(9.5, new InstantAction(() ->  flick.flickthing.setPosition(0.05)))
+
+                .waitSeconds(11)
+
+                .afterTime(0, new InstantAction(sort::CarroselOn))
+                  .afterTime(0, new InstantAction(intake::IntakeON))
+//
+                .strafeToLinearHeading(new Vector2d( 38, 11), Math.toRadians(90))
 
 
-//  private final double[] OUTTAKEPOS = {0.9, 0.525, 0.150, 0.525};
-                .afterTime(0, new InstantAction(() -> sort.sort.setPosition(0.9)))
-                .afterTime(0.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(0.8, new InstantAction(() ->  flick.flickthing.setPosition(0.2)))
+                .strafeTo(new Vector2d(38, 60), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-20, 20))
+
+                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-208))
+                .afterTime(0, new InstantAction(sort::CarroselOff))
+                .afterTime(0, new InstantAction(intake::IntakeOFF))
+
+                .afterTime(0.3, new InstantAction(() -> sort.sort.setPosition(0.15)))
+                .afterTime(1.5, new InstantAction(() -> flick.flickthing.setPosition(0.57)))
+                .afterTime(2, new InstantAction(() ->  flick.flickthing.setPosition(0.05)))
+
+                .afterTime(3, new InstantAction(() -> sort.sort.setPosition(0.525)))
+                .afterTime(4, new InstantAction(() -> flick.flickthing.setPosition(0.57)))
+                .afterTime(4.5, new InstantAction(() ->  flick.flickthing.setPosition(0.05)))
+
+                .afterTime(6, new InstantAction(() -> sort.sort.setPosition(0.9)))
+                .afterTime(7, new InstantAction(() -> flick.flickthing.setPosition(0.57)))
+                .afterTime(7.5, new InstantAction(() ->  flick.flickthing.setPosition(0.05)))
+
+                .waitSeconds(8)
+                .strafeToLinearHeading(new Vector2d( 12, 11), Math.toRadians(90))
 
 
+
+
+
+//
+//
+////
+//                // timed servo actions using InstantAction
+
+//
+//                .afterTime(9.0, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
+//                .afterTime(9.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
+////////
+//                .afterTime(11, new InstantAction(sort::CarroselOn))
+//                .afterTime(11, new InstantAction(intake::IntakeON))
+//
+//
+//
+//
+//                .waitSeconds(11)
+//
+////
+               // .strafeToLinearHeading(new Vector2d(90, -32), Math.toRadians(-90))
+
+//
+//                .strafeTo(new Vector2d(38, -60), new TranslationalVelConstraint(20), new ProfileAccelConstraint(-20, 20))
+//
+//                .strafeTo(new Vector2d(35, -32))
+//
+//
+//                .strafeToLinearHeading(new Vector2d(62, -11), Math.toRadians(200.5))
+//
+//                .afterTime(0, new InstantAction(sort::CarroselOff))
+//                .afterTime(0, new InstantAction(intake::IntakeOFF))
+//
+//
+//
+//
+
+                .afterTime(0, new InstantAction(() -> sort.sort.setPosition(0.19)))
+                .afterTime(1.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
+                .afterTime(2, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
+
+                .afterTime(3, new InstantAction(() -> sort.sort.setPosition(0.56)))
+                .afterTime(4, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
+                .afterTime(4.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
+
+                .afterTime(6, new InstantAction(() -> sort.sort.setPosition(0.935)))
+                .afterTime(7, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
+                .afterTime(7.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
 //////
-                .waitSeconds(7.6)
-                .strafeTo(new Vector2d(35, 32))
-
-
+//                .waitSeconds(7.6)
+//                .strafeTo(new Vector2d(35, -32))
 
 
 //
@@ -120,17 +229,17 @@ public class RedSideShoot extends LinearOpMode {
 
             if(Objects.equals(limeLight.GetColors(0), "P") && Objects.equals(limeLight.GetColors(1), "G"))
             {
-               // sort.sort.setPosition(0.19);
+                // sort.sort.setPosition(0.19);
                 telemetry.addData("FIRST ONE", "P");
 
             }
             else if(Objects.equals(limeLight.GetColors(0), "P") && Objects.equals(limeLight.GetColors(1), "P"))
             {
                 telemetry.addData("FIRST ONE", "P");
-               // sort.sort.setPosition(0.56);
+                // sort.sort.setPosition(0.56);
             }
             else if(Objects.equals(limeLight.GetColors(0), "G") && Objects.equals(limeLight.GetColors(1), "P")) {
-              //  sort.sort.setPosition(0.935);
+                //  sort.sort.setPosition(0.935);
                 telemetry.addData("FIRST ONE", "G");
             }
 
@@ -143,6 +252,9 @@ public class RedSideShoot extends LinearOpMode {
         }
 
 
+        telemetry.addLine("READY! GOOD LUCK :)");
+
+        telemetry.update();
 
         waitForStart();
         if (isStopRequested()) return;
@@ -176,24 +288,24 @@ public class RedSideShoot extends LinearOpMode {
             while (opModeIsActive() && SORT.get()) {
                 try {
 
-//                    if(sort.carroselOn) //@hack CHANGED CARROSELON, NEEDS TO BE FIXED.
-//                    {
-//                        sort.sort.setPosition(sortposup[0]);
-//                        if(sortposup[0] >= 1)
-//                        {
-//                            flipdir[0] = !flipdir[0];
-//                        }
-//                        if(sortposup[0] <= 0){
-//                            flipdir[0] = !flipdir[0];
-//                        }
-//
-//
-//                        if(flipdir[0])    sortposup[0] = (float) (sortposup[0] + 0.015);
-//
-//                        if(!flipdir[0])    sortposup[0] = (float) (sortposup[0] - 0.015);
-//
-//
-//                    }
+                    if(sort.MODE) //@hack CHANGED CARROSELON, NEEDS TO BE FIXED.
+                    {
+                        sort.sort.setPosition(sortposup[0]);
+                        if(sortposup[0] >= 1)
+                        {
+                            flipdir[0] = !flipdir[0];
+                        }
+                        if(sortposup[0] <= 0){
+                            flipdir[0] = !flipdir[0];
+                        }
+
+
+                        if(flipdir[0])    sortposup[0] = (float) (sortposup[0] + 0.015);
+
+                        if(!flipdir[0])    sortposup[0] = (float) (sortposup[0] - 0.015);
+
+
+                    }
 
 
 
@@ -221,7 +333,7 @@ public class RedSideShoot extends LinearOpMode {
                     if(intake.IntakeON)
                     {
                         intake.spin_input.setPower(1);
-                      //  intake.intakepart.setPower(1);
+                        //  intake.intakepart.setPower(1);
 
                     }
 
@@ -270,7 +382,7 @@ public class RedSideShoot extends LinearOpMode {
             while (opModeIsActive() && keepLime.get()) {
                 try {
                     // call your method that populates telemetry / reads yaw
-                    limeLight.LimeLightOpMode(telemetry,colorTest);
+                    limeLight.LimeLightOpMode(telemetry, colorTest);
                 } catch (Exception e) {
                     e.printStackTrace();
                     break;

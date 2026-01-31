@@ -132,7 +132,7 @@ public class LimeLight {
         limelight.updateRobotOrientation(orientation.getYaw()); //get the yaw from the rev hub, way more accurate.
         LLResult result = limelight.getLatestResult(); //Pull the results from the limelight
 
-        if(result.getPipelineIndex() != 0); //we want to avoid trying to update it every frame, as this could cause slowness if they haven't factored in switching
+        if(result.getPipelineIndex() != 0) //we want to avoid trying to update it every frame, as this could cause slowness if they haven't factored in switching
         {
             limelight.pipelineSwitch(0); // we attempt to switch it, this is for auto.
         }
@@ -162,45 +162,47 @@ public class LimeLight {
                     This next block checks what the tag is (because we want to avoid some tags when driving and stuff
                     we check tags 24 and 20, as they are the marked ones for the shooter.
                 */
-                if (fr.getFiducialId() == 24) { // if our tag returns with the results (24) (red side)
+                if (fr.getFiducialId() == 24) {
 
-                    //get the distance from the tag.
                     distance = computeDistanceToFiducial(fr, telemetry);
+                    telemetry.addData("Dist", "%.2f", distance);
 
-                    //double check that the tag pos in 3d space isn't null.
                     if (tagPoseCamera != null) {
 
-                        // Get the tag's X pos, and depth (Z)
-                        // @img(https://buzzcoder.gitbooks.io/codecraft-hour-of-code-js/content/assets/3D_coordinate_system.png)
-   /// this chart reflects the pos, and thats what we do for @line(148)
-                        double x = tagPoseCamera.getPosition().x; // left/right
-                        double z = tagPoseCamera.getPosition().z; // forward
+                        final double CAMERA_X_OFFSET = 0.15; // meters, tune this
 
-                        // angle to tag (deg), 0 = centered
+                        double x = tagPoseCamera.getPosition().x - CAMERA_X_OFFSET;
+                        double z = tagPoseCamera.getPosition().z;
+
                         double angleDeg = Math.toDegrees(Math.atan2(x, z));
-
                         double errorDeg = angleDeg;
 
-                        if (Math.abs(errorDeg) > acceptableTurretErrorDeg) {
+                        telemetry.addData("Turret Error (deg)", "%.2f", errorDeg);
 
-                            double kP = 0.0155;
-                            double turretPower = errorDeg * kP;
+                        double acceptableError = acceptableTurretErrorDeg;
 
-                            // Clamp AND add minimum power to avoid stalling
-                            turretPower = clamp(turretPower, -0.7, 0.7);
-                            if (Math.abs(turretPower) < 0.08) {
-                                turretPower = Math.copySign(0.08, turretPower);
+                        if (Math.abs(errorDeg) > acceptableError) {
+
+                            double baseKP = 0.0155;
+                            double distanceScale = clamp(distance / 2.0, 0.6, 1.6);
+
+                            double turretPower = errorDeg * baseKP * distanceScale;
+
+                            turretPower = clamp(turretPower, -0.6, 0.6);
+
+                            if (Math.abs(turretPower) < 0.1) {
+                                turretPower = Math.copySign(0.1, turretPower);
                             }
 
-                            turretServo.setPower(turretPower * -1); // one gear causes this.
+                            turretServo.setPower(-turretPower);
 
                         } else {
-
                             turretServo.setPower(0.0);
-
                         }
                     }
                 }
+
+
 
                 //if we see the limelight id code as (20)
                  else if (fr.getFiducialId() == 20){
@@ -231,6 +233,8 @@ public class LimeLight {
 //                }
 //
 //                turretServo.setPower(-searchDirection * SEARCH_POWER);
+                turretServo.setPower( 0);
+
 
             }
 
@@ -253,7 +257,7 @@ public class LimeLight {
 //            }
 //
 //  v
-//            turretServo.setPower( -searchDirection * SEARCH_POWER);
+        turretServo.setPower( 0);
 
         }
 
