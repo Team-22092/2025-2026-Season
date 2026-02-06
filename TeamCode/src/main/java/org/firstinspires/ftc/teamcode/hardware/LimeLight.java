@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import static androidx.core.math.MathUtils.clamp;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -284,6 +285,23 @@ public class LimeLight {
 
     //AUTOCODE
     //----------------------------------------------------------------------------------------------------------
+    public LLResult getLatestResult() {
+        if (limelight == null) return null;
+        return limelight.getLatestResult();
+    }
+
+    public LLResultTypes.FiducialResult getLatestFiducialResult() {
+        LLResult result = getLatestResult();
+        if (result != null && result.isValid()) {
+            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+            if (fiducials != null && !fiducials.isEmpty()) {
+                return fiducials.get(0);
+            }
+        }
+        return null;
+    }
+
+
 
     public String GetColors(float part) { //AUTO CODE
         LLResult result = limelight.getLatestResult(); //Pull the results from the limelight

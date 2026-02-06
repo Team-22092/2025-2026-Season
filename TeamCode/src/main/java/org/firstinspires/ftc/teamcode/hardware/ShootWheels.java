@@ -88,10 +88,10 @@ public class ShootWheels {
             
             // Manual tuning overrides for hood and power
             if (gamepadTwo.dpad_up && !gamepad2Old.dpad_up) {
-                targetPosition += 0.05;
+                targetPosition += 1;
             }
             if (gamepadTwo.dpad_down && !gamepad2Old.dpad_down) {
-                targetPosition -= 0.05;
+                targetPosition -= 1;
             }
 
             targetPosition = 0.654 + (-0.0888* distance) + Math.pow(0.036 * distance , 2);
