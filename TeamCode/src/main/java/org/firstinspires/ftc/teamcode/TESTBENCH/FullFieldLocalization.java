@@ -80,10 +80,10 @@ public class FullFieldLocalization extends OpMode {
         turret.setPower(1.0); // Full speed to track accurately while moving
 
         // 8. Driving (Standard Mecanum)
-        drive.setDrivePowers(new PoseVelocity2d(
-                new Vector2d(-gamepad1.left_stick_y, -gamepad1.left_stick_x),
-                -gamepad1.right_stick_x
-        ));
+//        drive.setDrivePowers(new PoseVelocity2d(
+//                new Vector2d(-gamepad1.left_stick_y, -gamepad1.left_stick_x),
+//                -gamepad1.right_stick_x
+//        ));
 
         // --- DEBUGGING TELEMETRY ---
         telemetry.addData("X Position", "%.2f", currentPose.position.x);

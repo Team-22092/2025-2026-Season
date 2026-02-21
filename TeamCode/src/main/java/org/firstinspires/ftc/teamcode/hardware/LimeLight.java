@@ -46,7 +46,7 @@ public class LimeLight {
     //TOUCH SENSOR:
 
 
-
+    public static boolean locktarget = false;
 
     private DcMotor turret;
 
@@ -172,17 +172,17 @@ public class LimeLight {
                         double errorDeg = angleDeg;
 
                         if (Math.abs(errorDeg) > acceptableTurretErrorDeg) {
+                            locktarget = true;
 
                             double kP = 0.02;
                             double turretPower = errorDeg * kP;
 
-// HARD minimum to beat stiction
-//                            turretPower = clamp(turretPower, -0.4, 0.4);
-//
-//                            if (Math.abs(turretPower) < 0.15) {
-//                                turretPower = Math.copySign(0.15, turretPower);
-//                            }
-//                            turret.setPower(turretPower);
+                            turretPower = clamp(turretPower, -0.4, 0.4);
+
+                            if (Math.abs(turretPower) < 0.15) {
+                                turretPower = Math.copySign(0.15, turretPower);
+                            }
+                            turret.setPower(turretPower);
 
                         } else {
 
@@ -211,17 +211,20 @@ public class LimeLight {
                         double errorDeg = angleDeg;
 
                         if (Math.abs(errorDeg) > acceptableTurretErrorDeg) {
-//
-//                            double kP = 0.02;
-//                            double turretPower = errorDeg * kP;
-//
-//                            turretPower = clamp(turretPower, -0.6, 0.6);
-//
-//                            if (Math.abs(turretPower) < 0.15) {
-//                                turretPower = Math.copySign(0.15, turretPower);
-//                            }
-//
-//                            turret.setPower(turretPower + 0.1);
+
+                                locktarget = true;
+
+
+                            double kP = 0.02;
+                            double turretPower = errorDeg * kP;
+
+                            turretPower = clamp(turretPower, -0.6, 0.6);
+
+                            if (Math.abs(turretPower) < 0.15) {
+                                turretPower = Math.copySign(0.15, turretPower);
+                            }
+
+                            turret.setPower(turretPower + 0.1);
 
                         } else {
 
@@ -234,6 +237,10 @@ public class LimeLight {
                     telemetry.addData("Dist", "%.2f", distance);
                 }
 
+                 else{
+                    locktarget = false;
+                }
+
 
 
 
@@ -242,8 +249,18 @@ public class LimeLight {
 
             }
 
+            else{
+                locktarget = false;
+            }
+
+
 
         }
+
+        else{
+            locktarget = false;
+        }
+
 
 
 
