@@ -3,159 +3,94 @@ package org.firstinspires.ftc.teamcode.TESTBENCH;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
-import org.firstinspires.ftc.teamcode.hardware.LimeLight;
-import org.firstinspires.ftc.teamcode.hardware.Wheels;
 
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.hardware.limelightvision.LLStatus;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
-import java.util.List;
-
-//CREDITS
-//A lot of this code isn't mine, and has been created by a lot of awesome people.
-//https://medium.com/%40vikramaditya.nishant/how-to-make-a-zero-drift-ftc-localizer-with-kalman-filters-911807e0916d
-//https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html
-//https://docs.limelightvision.io/docs/docs-limelight/apis/ftc-programming
-//https://www.youtube.com/watch?v=wA1cVPGm9lY
-//https://docs.limelightvision.io/docs/docs-limelight/getting-started/limelight-3a#for-ftc-1
-//https://docs.limelightvision.io/docs/docs-limelight/pipeline-apriltag/apriltag-robot-localization-megatag2
-
-@TeleOp(name = "Full Field Localization TEST")
+@TeleOp(name = "True Triangulation - 55:90 Ratio")
 public class FullFieldLocalization extends OpMode {
-    //side functions
-    Gamepad currentGamepadDrive = new Gamepad();
-    Wheels wheels;
+
     MecanumDrive drive;
-    Limelight3A limelight;
+    DcMotor turret;
+
+    // --- HARDWARE CONSTANTS ---
+    static final double MOTOR_TICKS_PER_REV = 751.8;
+    static final double GEAR_RATIO = 90.0 / 55.0;
+    static final double TICKS_PER_DEGREE = (MOTOR_TICKS_PER_REV * GEAR_RATIO) / 360.0;
+
+    static final int TURRET_MAX_TICKS = 550; // Total travel allowed
+    static final double TICKS_AT_FORWARD = 275.0;
 
 
-    //vars
-    Pose3D botpose;
-
+    static final Vector2d TARGET_POS = new Vector2d(-60, 50);//-60, 50 for RIGHT, -60, -50 for LEFT
 
     @Override
     public void init() {
-        //DEADWHEELS
-        drive = new MecanumDrive(
-                hardwareMap,
-                new Pose2d(69, 11, Math.toRadians(180)) // Starting from 0,0,0 (roadrunner cords) // @warn set this to where you end in auto.
-        );
+        turret = hardwareMap.get(DcMotor.class, "T");
+        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        // STARTING CONDITION: Turret must be at the 0 position (Far Right) when you hit Init
+        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        turret.setTargetPosition(0);
+        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Set your starting position on the field (X, Y, Heading in Radians)
+        drive = new MecanumDrive(hardwareMap, new Pose2d(69, 11, Math.toRadians(180)));
 
 
-        wheels = new Wheels(hardwareMap);
-
-
-        //limelight settings - from the docs ig
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
-        limelight.start(); // This tells Limelight to start looking
-
-        List<LynxModule> all_hubs = hardwareMap.getAll(LynxModule.class);
-        for (LynxModule hub : all_hubs) {
+        for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
     }
 
     @Override
     public void loop() {
-        //test limelight.pipelineSwitch(0);
-        limelight.pipelineSwitch(0);
+        // 1. Update Deadwheel Localization
+        drive.updatePoseEstimate();
+        Pose2d currentPose = drive.localizer.getPose(); // RoadRunner 1.0 syntax
 
+        // 2. Triangulate the Vector to the Goal
+        // This math calculates the angle from the ROBOT (x,y) to the GOAL (x,y)
+        double dx = TARGET_POS.x - currentPose.position.x;
+        double dy = TARGET_POS.y - currentPose.position.y;
 
+        // This is the absolute angle on the field (0 is usually pointing toward Red Backdrop)
+        double absoluteAngleDeg = Math.toDegrees(Math.atan2(dy, dx));
 
-        //DEADWHEELS
-        double y = -currentGamepadDrive.left_stick_y; //forward
-        double x = -currentGamepadDrive.left_stick_x; //strafe
-        double rx = -currentGamepadDrive.right_stick_x; //turn
-        drive.setDrivePowers(
-                new PoseVelocity2d(
-                        new Vector2d(y, x), //y needs slot one, x needs slot 2
-                        rx
-                )
-        );
-        //PoseVelocity2d vel = drive.updatePoseEstimate(); Can be useful for shooting while moving.
-        Pose2d pose = drive.localizer.getPose();
+        // 3. Convert Field Angle to Robot-Relative Angle
+        double robotHeadingDeg = Math.toDegrees(currentPose.heading.toDouble());
+        double relativeAngle = absoluteAngleDeg - robotHeadingDeg;
 
-        //check limelight:
+        // 4. Normalize to -180 to 180 (shortest path)
+        while (relativeAngle > 180) relativeAngle -= 360;
+        while (relativeAngle <= -180) relativeAngle += 360;
 
-        // --- telem ---
-        telemetry.addLine("DEADWHEEL (odometry) pose:");
-        telemetry.addData("X", "%.2f", pose.position.x);
-        telemetry.addData("Y", "%.2f", pose.position.y);
-        telemetry.addData("Heading (deg)", "%.2f", Math.toDegrees(pose.heading.toDouble()));
+        // 5. Convert to Ticks with your Far-Right Offset
+        // Logic: (Angle * Ticks/Degree) + your "Center" point
+        double targetTicks = (relativeAngle * TICKS_PER_DEGREE) + TICKS_AT_FORWARD;
 
-        //--- telem for limelight ---
-        //we call it
-        limelighttest(telemetry);
+        // 6. Safety Clamp (Prevents the turret from breaking itself)
+        if (targetTicks < 0) targetTicks = 0;
+        if (targetTicks > TURRET_MAX_TICKS) targetTicks = TURRET_MAX_TICKS;
 
+        // 7. Update Motor
+        turret.setTargetPosition((int) targetTicks);
+        turret.setPower(1.0); // Full speed to track accurately while moving
 
-        //--- telem for Kalman ---
-        telemetry.addLine("Kalman Filter");
-        telemetry.addData("X", "%.2f", Kalman(pose.position.x, botpose.getPosition().x));
-        telemetry.addData("Y", "%.2f", Kalman(pose.position.y, botpose.getPosition().y));
-        telemetry.addData("Heading (deg)", "%.2f",Kalman(Math.toDegrees(pose.heading.toDouble()), Math.toDegrees(botpose.getOrientation().getYaw())));
+        // 8. Driving (Standard Mecanum)
+        drive.setDrivePowers(new PoseVelocity2d(
+                new Vector2d(-gamepad1.left_stick_y, -gamepad1.left_stick_x),
+                -gamepad1.right_stick_x
+        ));
 
-
-
-        currentGamepadDrive.copy(gamepad1);
-        wheels.ManualDrive(currentGamepadDrive);
-        // limeLight.Display_Telemetry(telemetry);
+        // --- DEBUGGING TELEMETRY ---
+        telemetry.addData("X Position", "%.2f", currentPose.position.x);
+        telemetry.addData("Y Position", "%.2f", currentPose.position.y);
+        telemetry.addData("Heading", "%.2f", robotHeadingDeg);
+        telemetry.addData("Calculated Target Ticks", (int)targetTicks);
+        telemetry.addData("Current Turret Ticks", turret.getCurrentPosition());
         telemetry.update();
     }
-
-
-
-    public void limelighttest(Telemetry telemetry){
-
-        YawPitchRollAngles orientation = drive.lazyImu.get().getRobotYawPitchRollAngles();
-        limelight.updateRobotOrientation(orientation.getYaw(AngleUnit.DEGREES));
-        LLResult result = limelight.getLatestResult();
-        if (result != null) {
-            if (result.isValid()) {
-                botpose = result.getBotpose_MT2();
-                // Use botpose data
-                telemetry.addLine("LIMELIGHT (camera) pose:");
-                telemetry.addData("X", "%.2f", botpose.getPosition().x);
-                telemetry.addData("Y", "%.2f", botpose.getPosition().y);
-            }
-        } else {
-            telemetry.addLine("No valid result");
-        }
-
-    }
-
-    double x = 0;
-    double p = 1;
-    final double q = 0.02;
-    final double r = 0.5;
-    public double Kalman(double prediction, double measurement) {
-
-
-        x = prediction;
-        p += q;
-
-        // update
-        double k = p / (p + r);
-        x = x + k * (measurement - x);
-        p = (1 - k) * p;
-
-        return x;
-    }
-
-
-
-
 }

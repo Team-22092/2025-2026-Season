@@ -44,13 +44,11 @@ public class LimeLight {
 
 
     //TOUCH SENSOR:
-    TouchSensor LEFTTOUCH, RIGHTTOUCH;
 
 
 
 
-
-    private CRServo turretServo;
+    private DcMotor turret;
 
 
     private double acceptableTurretErrorDeg = 1.5;
@@ -64,20 +62,16 @@ public class LimeLight {
     public LimeLight(HardwareMap hardwareMap, Telemetry telemetry) {
 
 
-        //touchsensor
-        LEFTTOUCH = hardwareMap.get(TouchSensor.class, "LT");
-        RIGHTTOUCH = hardwareMap.get(TouchSensor.class, "RT");
-
-
-
-
-//  if (touchSensor.isPressed()){
-
 
         //set hardware map
         limelight = hardwareMap.get(Limelight3A.class, "limelight"); //the hardware map is setting the name.
 
-        turretServo = hardwareMap.get(CRServo.class, "TR");
+        turret = hardwareMap.get(DcMotor.class, "T");
+        turret.setDirection(DcMotor.Direction.FORWARD); // or REVERSE, test both
+
+        turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //MOTOR FOR SHOOTING
         //limelight_detector = hardwareMap.get(DcMotor.class, "LLD");
@@ -117,12 +111,7 @@ public class LimeLight {
 
     public List<String> Parts = new ArrayList<>();
 
-    // === Turret search config ===
-    private static final double SEARCH_POWER = 0.2; // power when we dont see it.
-    private static final long SEARCH_FLIP_MS = 700;  // flip direction every 0.7s
 
-    private long lastSearchFlipTime = 0;
-    private int searchDirection = 1; // 1 or -1
 
     public void LimeLightOpMode(Telemetry telemetry, ColorTest colorTest) //final code wont have telem value, this is for testing
     {
@@ -184,20 +173,20 @@ public class LimeLight {
 
                         if (Math.abs(errorDeg) > acceptableTurretErrorDeg) {
 
-                            double kP = 0.0155;
+                            double kP = 0.02;
                             double turretPower = errorDeg * kP;
 
-                            // Clamp AND add minimum power to avoid stalling
-                            turretPower = clamp(turretPower, -0.7, 0.7);
-                            if (Math.abs(turretPower) < 0.08) {
-                                turretPower = Math.copySign(0.08, turretPower);
-                            }
-
-                            turretServo.setPower(turretPower * -1); // one gear causes this.
+// HARD minimum to beat stiction
+//                            turretPower = clamp(turretPower, -0.4, 0.4);
+//
+//                            if (Math.abs(turretPower) < 0.15) {
+//                                turretPower = Math.copySign(0.15, turretPower);
+//                            }
+//                            turret.setPower(turretPower);
 
                         } else {
 
-                            turretServo.setPower(0.0);
+                            turret.setPower(0.0);
 
                         }
                     }
@@ -205,6 +194,42 @@ public class LimeLight {
 
                 //if we see the limelight id code as (20)
                  else if (fr.getFiducialId() == 20){
+                    //get the distance from the tag.
+                    distance = computeDistanceToFiducial(fr, telemetry);
+
+                    //double check that the tag pos in 3d space isn't null.
+                    if (tagPoseCamera != null) {
+
+                        // Get the tag's X pos, and depth (Z)
+                        // @img(https://buzzcoder.gitbooks.io/codecraft-hour-of-code-js/content/assets/3D_coordinate_system.png)
+                        /// this chart reflects the pos, and thats what we do for @line(148)
+                        double x = tagPoseCamera.getPosition().x; // left/right
+                        double z = tagPoseCamera.getPosition().z; // forward
+
+                        double angleDeg = Math.toDegrees(Math.atan2(x, z));
+
+                        double errorDeg = angleDeg;
+
+                        if (Math.abs(errorDeg) > acceptableTurretErrorDeg) {
+//
+//                            double kP = 0.02;
+//                            double turretPower = errorDeg * kP;
+//
+//                            turretPower = clamp(turretPower, -0.6, 0.6);
+//
+//                            if (Math.abs(turretPower) < 0.15) {
+//                                turretPower = Math.copySign(0.15, turretPower);
+//                            }
+//
+//                            turret.setPower(turretPower + 0.1);
+
+                        } else {
+
+                            turret.setPower(0.0);
+
+                        }
+                    }
+
                     distance = computeDistanceToFiducial(fr, telemetry); // meter
                     telemetry.addData("Dist", "%.2f", distance);
                 }
@@ -216,47 +241,10 @@ public class LimeLight {
 
 
             }
-            else {
-//                // 🧹 SEARCH MODE (no tag detected)
-//
-//                // If we hit right wall, go left
-//                if (RIGHTTOUCH.isPressed()) {
-//                    searchDirection = -1;
-//
-//                }
-//
-//                // If we hit left wall, go right
-//                if (LEFTTOUCH.isPressed()) {
-//                    searchDirection = 1;
-//
-//                }
-//
-//                turretServo.setPower(-searchDirection * SEARCH_POWER);
-
-            }
 
 
         }
-        else {
-            // 🧹 SEARCH MODE (no tag detected)
 
-
-//            // If we hit right wall, go left
-//            if (RIGHTTOUCH.isPressed()) {
-//                searchDirection = -1;
-//
-//            }
-//
-//            // If we hit left wall, go right
-//            if (LEFTTOUCH.isPressed()) {
-//                searchDirection = 1;
-//
-//            }
-//
-//  v
-//            turretServo.setPower( -searchDirection * SEARCH_POWER);
-
-        }
 
 
 
@@ -273,12 +261,6 @@ public class LimeLight {
 
         double dist = Math.sqrt(x * x + y * y + z * z);
 
-// telemetry so we can debug quickly
-
-//we used to have a lightbar here, its been removed.
-    ;
-
-
         return dist;
     }
 
@@ -289,18 +271,6 @@ public class LimeLight {
         if (limelight == null) return null;
         return limelight.getLatestResult();
     }
-
-    public LLResultTypes.FiducialResult getLatestFiducialResult() {
-        LLResult result = getLatestResult();
-        if (result != null && result.isValid()) {
-            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-            if (fiducials != null && !fiducials.isEmpty()) {
-                return fiducials.get(0);
-            }
-        }
-        return null;
-    }
-
 
 
     public String GetColors(float part) { //AUTO CODE

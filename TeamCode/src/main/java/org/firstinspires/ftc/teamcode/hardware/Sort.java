@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
+//@WARN this class isnt used anymore.
 public class Sort {
     public Servo sort; //the main sort servo (the axon under our bot)
 
@@ -35,101 +35,101 @@ public class Sort {
     public void SortOpMode(Gamepad Gamepad2, Gamepad oldGamepad2, Flick flick)
     {
 
-        if(Gamepad2.triangle && !oldGamepad2.triangle) //check if we hit the button last frame, this prevents toggles hundreds of times a second
-        {
-            MODE = !MODE; //set it like a LightSwitch, on or off, and if its off its on, ect.
-        }
-
-        //# Old Code For @NOTE THIS IS COLLAPSEABLE
-        if(MODE)
-        {
-            sort.setPosition(sortposup);
-            if(sortposup >= 1)
-            {
-                flipdir = !flipdir;
-            }
-            if(sortposup <= 0){
-                flipdir = !flipdir;
-            }
-
-
-            if(flipdir)    sortposup = (float) (sortposup + 0.015);
-
-            if(!flipdir)    sortposup = (float) (sortposup - 0.015);
-        }
-
-
-//        if(Gamepad2.right_bumper && !oldGamepad2.right_bumper && !flick.flickup)
+//        if(Gamepad2.triangle && !oldGamepad2.triangle) //check if we hit the button last frame, this prevents toggles hundreds of times a second
 //        {
-//
-//
-//
-//           setpos = (setpos + 1) % POSITIONSBackward.length; //get the
-//           sort.setPosition(POSITIONSBackward[setpos]);
-//
-//
+//            MODE = !MODE; //set it like a LightSwitch, on or off, and if its off its on, ect.
 //        }
-//        if(Gamepad2.left_bumper && !oldGamepad2.left_bumper && !flick.flickup )
+//
+//        //# Old Code For @NOTE THIS IS COLLAPSEABLE
+//        if(MODE)
 //        {
-//          // % -POSITIONSBackward.length; //get the
-//            setpos = (setpos - 1);
-//           if(setpos < 0)
-//           {
-//               setpos = POSITIONSBackward.length-1;
-//           }
+//            sort.setPosition(sortposup);
+//            if(sortposup >= 1)
+//            {
+//                flipdir = !flipdir;
+//            }
+//            if(sortposup <= 0){
+//                flipdir = !flipdir;
+//            }
 //
 //
-//            sort.setPosition(POSITIONSBackward[setpos]);
+//            if(flipdir)    sortposup = (float) (sortposup + 0.015);
 //
+//            if(!flipdir)    sortposup = (float) (sortposup - 0.015);
 //        }
-
-        if(Gamepad2.right_bumper && !oldGamepad2.right_bumper)
-        {
-            //FIRST LETS TEST TO SEE IF WHAT MODE WE ARE ON.
-
-            //WE DO THIS BY CHECKING THE KEY. around about @line(32)
-//            if(MODE){ //INTAKE
-//                setpos = (setpos + 1) % INTAKEPOS.length; //get the
-//                sort.setPosition(INTAKEPOS[setpos]);
-//            }
-//            else{ //OUTTAKE
-                setpos = (setpos + 1) % OUTTAKEPOS.length; //get the
-                sort.setPosition(OUTTAKEPOS[setpos]);
-            //}
-
-
-
-
-
-        }
-        if(Gamepad2.left_bumper && !oldGamepad2.left_bumper )
-        {
-          //FIRST LETS TEST TO SEE IF WHAT MODE WE ARE ON.
-
-            //WE DO THIS BY CHECKING THE KEY. around about @line(32)
-//            if(MODE){ //INTAKE
-//                setpos = (setpos - 1) % INTAKEPOS.length;
-//                sort.setPosition(INTAKEPOS[setpos]);
-//            }
-          //  else{ //OUTTAKE
-                setpos = (setpos - 1) % OUTTAKEPOS.length;
-                sort.setPosition(OUTTAKEPOS[setpos]);
-           // }
-
-        }
-
-        //@warn Disable this when you have a normal drive, @note Debug only.
-        //@note this is only for tuning
+//
+//
+////        if(Gamepad2.right_bumper && !oldGamepad2.right_bumper && !flick.flickup)
+////        {
+////
+////
+////
+////           setpos = (setpos + 1) % POSITIONSBackward.length; //get the
+////           sort.setPosition(POSITIONSBackward[setpos]);
+////
+////
+////        }
+////        if(Gamepad2.left_bumper && !oldGamepad2.left_bumper && !flick.flickup )
+////        {
+////          // % -POSITIONSBackward.length; //get the
+////            setpos = (setpos - 1);
+////           if(setpos < 0)
+////           {
+////               setpos = POSITIONSBackward.length-1;
+////           }
+////
+////
+////            sort.setPosition(POSITIONSBackward[setpos]);
+////
+////        }
+//
 //        if(Gamepad2.right_bumper && !oldGamepad2.right_bumper)
 //        {
-//            setpos = setpos + 0.005f;
+//            //FIRST LETS TEST TO SEE IF WHAT MODE WE ARE ON.
+//
+//            //WE DO THIS BY CHECKING THE KEY. around about @line(32)
+////            if(MODE){ //INTAKE
+////                setpos = (setpos + 1) % INTAKEPOS.length; //get the
+////                sort.setPosition(INTAKEPOS[setpos]);
+////            }
+////            else{ //OUTTAKE
+//                setpos = (setpos + 1) % OUTTAKEPOS.length; //get the
+//                sort.setPosition(OUTTAKEPOS[setpos]);
+//            //}
+//
+//
+//
+//
+//
 //        }
-//        if(Gamepad2.left_bumper && !oldGamepad2.left_bumper)
+//        if(Gamepad2.left_bumper && !oldGamepad2.left_bumper )
 //        {
-//            setpos = setpos - 0.005f;
+//          //FIRST LETS TEST TO SEE IF WHAT MODE WE ARE ON.
+//
+//            //WE DO THIS BY CHECKING THE KEY. around about @line(32)
+////            if(MODE){ //INTAKE
+////                setpos = (setpos - 1) % INTAKEPOS.length;
+////                sort.setPosition(INTAKEPOS[setpos]);
+////            }
+//          //  else{ //OUTTAKE
+//                setpos = (setpos - 1) % OUTTAKEPOS.length;
+//                sort.setPosition(OUTTAKEPOS[setpos]);
+//           // }
+//
 //        }
-//        sort.setPosition(setpos);
-
+//
+//        //@warn Disable this when you have a normal drive, @note Debug only.
+//        //@note this is only for tuning
+////        if(Gamepad2.right_bumper && !oldGamepad2.right_bumper)
+////        {
+////            setpos = setpos + 0.005f;
+////        }
+////        if(Gamepad2.left_bumper && !oldGamepad2.left_bumper)
+////        {
+////            setpos = setpos - 0.005f;
+////        }
+////        sort.setPosition(setpos);
+//
 
     }
 

@@ -93,8 +93,8 @@ public class BlueSideShoot extends LinearOpMode {
                         sort.sort.setPosition(0.935);
                     }
                 }))
-                .afterTime(3.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(4, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
+//                .afterTime(3.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
+//                .afterTime(4, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
 
                 .afterTime(5, new InstantAction(() -> {
                     if (Objects.equals(limeLight.GetColors(1), "P")) {
@@ -103,8 +103,8 @@ public class BlueSideShoot extends LinearOpMode {
                         sort.sort.setPosition(0.935);
                     }
                 }))
-                .afterTime(6.0, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(6.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
+//                .afterTime(6.0, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
+//                .afterTime(6.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
 
                 .afterTime(8, new InstantAction(() -> {
                     if (Objects.equals(limeLight.GetColors(2), "P") && Objects.equals(limeLight.GetColors(1), "P"))
@@ -121,8 +121,8 @@ public class BlueSideShoot extends LinearOpMode {
                     }
                 }))
 
-                .afterTime(9.0, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(9.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
+//                .afterTime(9.0, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
+//                .afterTime(9.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
 //////
                 .afterTime(11, new InstantAction(sort::CarroselOn))
                 .afterTime(11, new InstantAction(intake::IntakeON))
@@ -150,18 +150,18 @@ public class BlueSideShoot extends LinearOpMode {
 
 
 
-                .afterTime(0, new InstantAction(() -> sort.sort.setPosition(0.19)))
-                .afterTime(1.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(2, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
-
-                .afterTime(3, new InstantAction(() -> sort.sort.setPosition(0.56)))
-                .afterTime(4, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(4.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
-
-                .afterTime(6, new InstantAction(() -> sort.sort.setPosition(0.935)))
-                .afterTime(7, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(7.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
-//////
+//                .afterTime(0, new InstantAction(() -> sort.sort.setPosition(0.19)))
+//                .afterTime(1.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
+//                .afterTime(2, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
+//
+//                .afterTime(3, new InstantAction(() -> sort.sort.setPosition(0.56)))
+//                .afterTime(4, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
+//                .afterTime(4.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
+//
+//                .afterTime(6, new InstantAction(() -> sort.sort.setPosition(0.935)))
+//                .afterTime(7, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
+//                .afterTime(7.5, new InstantAction(() ->  flick.flickthing.setPosition(0.35)))
+////////
                 .waitSeconds(7.6)
                 .strafeTo(new Vector2d(35, -32))
 
@@ -225,7 +225,7 @@ public class BlueSideShoot extends LinearOpMode {
         Thread shooterThread = new Thread(() -> {
             while (opModeIsActive() && keepShooting.get()) {
                 try {
-                    shootWheels.AutoSHOOT(limeLight, hardwareMap, telemetry);
+                    //shootWheels.AutoSHOOT(limeLight, hardwareMap, telemetry);
                 } catch (Exception e) {
                     e.printStackTrace();
                     break;

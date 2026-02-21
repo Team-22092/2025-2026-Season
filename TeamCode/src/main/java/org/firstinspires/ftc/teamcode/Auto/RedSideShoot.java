@@ -62,36 +62,19 @@ public class RedSideShoot extends LinearOpMode {
         Action MainAction = drive.actionBuilder(initialPose)
 
 
-                .afterTime(0, new InstantAction(() -> {
-
-                    String c0 = limeLight.GetColors(0);
-                    String c1 = limeLight.GetColors(1);
-
-                    if (c0.equals("P") && c1.equals("G")) {
-                        sort.sort.setPosition(0.19);
-                    }
-                    else if (c0.equals("P") && c1.equals("P")) {
-                        sort.sort.setPosition(0.56);
-                    }
-                    else if (c0.equals("G") && c1.equals("P")) {
-                        sort.sort.setPosition(0.935);
-                    }
-
-                }))
+                .strafeTo(new Vector2d(60, 14))
 
 
-                .strafeTo(new Vector2d(60, 11))
-
-
-//  private final double[] OUTTAKEPOS = {0.9, 0.525, 0.150, 0.525};
-                .afterTime(0, new InstantAction(() -> sort.sort.setPosition(0.9)))
-                .afterTime(0.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-                .afterTime(0.8, new InstantAction(() ->  flick.flickthing.setPosition(0.2)))
+//                .afterTime(0.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
+//                .afterTime(0.8, new InstantAction(() ->  flick.flickthing.setPosition(0.2)))
 
 
 //////
-                .waitSeconds(7.6)
-                .strafeTo(new Vector2d(35, 32))
+
+                .strafeToLinearHeading(new Vector2d(32, 32), Math.toRadians(90))
+                .strafeTo(new Vector2d(32, 60))
+                .strafeToLinearHeading(new Vector2d(60, 14), Math.toRadians(-180))
+                .strafeTo(new Vector2d(60, 14))
 
 
 
@@ -100,20 +83,16 @@ public class RedSideShoot extends LinearOpMode {
 //
 //
 //
-//                .strafeToLinearHeading(new Vector2d(11, 32), Math.toRadians(90))
-//
-//                .strafeTo(new Vector2d(11, 45))
-//
-//                .strafeTo(new Vector2d(11, 32))
-//
-//                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-198))
-////
-////
-//////
-//////
-////
-////                .waitSeconds(15)
-////                .lineToX(10)
+                .strafeToLinearHeading(new Vector2d(11, 32), Math.toRadians(90))
+                .strafeTo(new Vector2d(11, 60))
+                .strafeToLinearHeading(new Vector2d(60, 14), Math.toRadians(-180))
+
+
+
+
+                .strafeToLinearHeading(new Vector2d(60, 40), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(60, 14), Math.toRadians(-180))
                 .build();
 
         while (!isStarted() && !isStopRequested()) {
@@ -152,7 +131,7 @@ public class RedSideShoot extends LinearOpMode {
         Thread shooterThread = new Thread(() -> {
             while (opModeIsActive() && keepShooting.get()) {
                 try {
-                    shootWheels.AutoSHOOT(limeLight, hardwareMap, telemetry);
+                  //  shootWheels.AutoSHOOT(limeLight, hardwareMap, telemetry);
                 } catch (Exception e) {
                     e.printStackTrace();
                     break;
