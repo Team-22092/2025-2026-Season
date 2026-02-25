@@ -30,6 +30,7 @@ public class ShootWheels {
     double F = -14.6;
     double P = -0.7250;
 
+    boolean shouldusewheel = true;
 
     double[] stepSizes = {10.0, 1.0, 0.1, 0.001, 0.0001};
 
@@ -80,22 +81,37 @@ public class ShootWheels {
     double error;
     double hoodpos = 0.6;
     public void ShootWheelsOpMode(Gamepad gamepadTwo, Gamepad gamepad2Old, LimeLight limeLight, HardwareMap hardwareMap) {
+        distance = limeLight.distance;
+
         if (gamepadTwo.square && !gamepad2Old.square) {
             wheelOn = !wheelOn;
         }
 
         if (wheelOn) {
-
-
-
-
-
-            if(gamepadTwo.dpadUpWasPressed()){
-                ourTargetVel += 50;
+            if (distance < 1.9 && distance >= 0) {
+                pos = 0.6;
+                ourTargetVel = 1200;
             }
-            if(gamepadTwo.dpadDownWasPressed()){
-                ourTargetVel -= 50;
+            else if (distance < 2.3) {
+                pos = 0.6;
+                ourTargetVel = 1260;
             }
+            else if (distance < 3.0) {
+                pos = 0.6;
+                ourTargetVel = 1320;
+            }
+            else {
+                pos = 0.7;
+                ourTargetVel = 1460;
+            }
+
+//            if(gamepadTwo.dpadUpWasPressed()){
+//                ourTargetVel += 50;
+//            }
+//            if(gamepadTwo.dpadDownWasPressed()){
+//                ourTargetVel -= 50;
+//            }
+
 
 
             double currentVoltage = myControlHubVoltageSensor.getVoltage();
@@ -106,9 +122,10 @@ public class ShootWheels {
             PIDFCoefficients livePIDF = new PIDFCoefficients(P, 0.0, 0.0, liveF);
             WHEEL_L.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, livePIDF);
             WHEEL_R.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, livePIDF);
-
-            WHEEL_L.setVelocity(ourTargetVel);
-            WHEEL_R.setVelocity(ourTargetVel);
+            if(shouldusewheel) {
+                WHEEL_L.setVelocity(ourTargetVel);
+                WHEEL_R.setVelocity(ourTargetVel);
+            }
 
 
             curVelocity = WHEEL_R.getVelocity(); //we only get right, cause they are linked.
@@ -118,14 +135,14 @@ public class ShootWheels {
 
         //set hood.
 
-            hood.setPosition(hoodpos);
+            hood.setPosition(pos);
 
-            if(gamepadTwo.dpadLeftWasPressed()){
-                hoodpos += 0.05;
-            }
-            if(gamepadTwo.dpadRightWasPressed()){
-                hoodpos -= 0.05;
-            }
+//            if(gamepadTwo.dpadLeftWasPressed()){
+//                hoodpos += 0.1;
+//            }
+//            if(gamepadTwo.dpadRightWasPressed()){
+//                hoodpos -= 0.1 ;
+//            }
 
 
 
@@ -187,11 +204,30 @@ public class ShootWheels {
         pos = 0.00305 * Math.pow(distance, 2) + -0.02711 * distance + 0.74979;
         pos = Math.max(0.0, Math.min(1.0, pos));
         hood.setPosition(pos);
+        if(shouldusewheel)
+        {
+            WHEEL_L.setPower(targetPower);
+            WHEEL_R.setPower(targetPower);
 
-        WHEEL_L.setPower(targetPower);
-        WHEEL_R.setPower(targetPower);
+        }
 
         telemetry.addData("Auto Power", targetPower);
         telemetry.addData("Auto Hood", pos);
     }
+
+    public void spinUp() {
+        wheelOn = true;
+        WHEEL_L.setVelocity(ourTargetVel + 100);
+        WHEEL_R.setVelocity(ourTargetVel + 100);
+        shouldusewheel = false;
+    }
+
+    public void stop() {
+
+        WHEEL_L.setVelocity(ourTargetVel);
+        WHEEL_R.setVelocity(ourTargetVel);
+        shouldusewheel = true;
+    }
+
+
 }

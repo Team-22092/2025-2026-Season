@@ -40,7 +40,7 @@ public class RedSideShoot extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         // init shooter
         ShootWheels shootWheels = new ShootWheels(hardwareMap);
-        Flick flick = new Flick(hardwareMap);
+       // Flick flick = new Flick(hardwareMap);
 
         LimeLight limeLight = new LimeLight(hardwareMap, telemetry);
         final float[] sortposup = {0};

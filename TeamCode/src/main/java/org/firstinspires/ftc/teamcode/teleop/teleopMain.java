@@ -37,7 +37,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
     static final double TICKS_AT_FORWARD = 275.0;
 
 
-    static final Vector2d TARGET_POS = new Vector2d(-60, 60);//-60, 50 for RIGHT, -60, -50 for LEFT
+    static final Vector2d TARGET_POS = new Vector2d(-67, 30);//-60, 50 for RIGHT, -60, -50 for LEFT
 
 
     Gamepad currentGamepadDrive = new Gamepad(); //Gamepad 1, of current inputs
@@ -80,23 +80,23 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         ballColor = new BallColor(hardwareMap);
 
         colorTest = new ColorTest(hardwareMap, telemetry);
+        shootWheels = new ShootWheels(hardwareMap);
 
 
         sort = new Sort(hardwareMap);
 
-        flick = new Flick(hardwareMap);
+        flick = new Flick(hardwareMap, shootWheels);
         //TODO - Uncomment
 
         limeLight = new LimeLight(hardwareMap, telemetry); //Get the Limelight
 
-        shootWheels = new ShootWheels(hardwareMap);
 
 
         turret = hardwareMap.get(DcMotor.class, "T");
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // STARTING CONDITION: Turret must be at the 0 position (Far Right) when you hit Init
-        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         turret.setTargetPosition(0);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -137,7 +137,8 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
 
 
-
+        ballColor.pos = limeLight.color; //handoff for the color of hte ball
+        telemetry.addData("COLORRETURN",  ballColor.pos);
         //Run the drive
         //TODO - DEFINE DIFFERENT PARTS OF THE ROBOT
 
@@ -151,7 +152,6 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
        colorTest.COLOR();
 
-       flick.SortTelem(telemetry);
 
           //Gets the copilot buttons and sends it to spin the motors
 
@@ -230,13 +230,9 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
         }
 
-        // --- DEBUGGING TELEMETRY ---
-        telemetry.addData("X Position", "%.2f", currentPose.position.x);
-        telemetry.addData("Y Position", "%.2f", currentPose.position.y);
-        telemetry.addData("Heading", "%.2f", robotHeadingDeg);
-        telemetry.addData("Calculated Target Ticks", (int)targetTicks);
-        telemetry.addData("Current Turret Ticks", turret.getCurrentPosition());
-        telemetry.update();
+        telemetry.addData("DRIVE POS - ", drive.localizer.getPose());
+
+
 
     }
 

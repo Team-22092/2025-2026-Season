@@ -31,7 +31,7 @@ public class BallColor { //This class detects the ball color loaded into the sho
     }
 
 
-    double pos = 0.3;; //set the starting pos, white. (0.9) the pwd is between 0.3-0.9
+    public double pos = 0.3;; //set the starting pos, white. (0.9) the pwd is between 0.3-0.9
 
     public void ColorOpMode(Telemetry telemetry) // pull telem for the future
     {
@@ -40,31 +40,6 @@ public class BallColor { //This class detects the ball color loaded into the sho
         int g = color.green();
         int b = color.blue();
 
-        //do a check if green is greater than all the colors, and more than 50, its green
-        boolean isGreen = g > r && g > b && g > 50;
-
-        //if the color is greater than a threshold of 120 for red and blue, its purple.
-        boolean isPurple = (r > 120 && b > 120);
-
-        if (isPurple) { //if its purple, se it to the pwm of purple.
-            pos = 0.625;
-        }
-        else if (isGreen) { // else if its green
-            pos = 0.50;
-        }
-        else{
-            //if we dont see any color, set it to white
-            //pos = 0;
-
-            //@note this is some test code to go through all the cases, dont use this for main run.
-            pos = pos + 0.005;
-
-            if(pos >= 0.9)
-            {
-                pos = 0.3;
-            }
-            telemetry.addData("POS COLOR", pos);
-        }
 
 
         rgbLight.setPosition(pos);

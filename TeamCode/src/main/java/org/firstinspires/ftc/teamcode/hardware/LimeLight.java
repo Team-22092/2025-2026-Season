@@ -42,16 +42,19 @@ import java.util.List;
 public class LimeLight {
     //LimeLight3a Var
 
-
+    public float color;
     //TOUCH SENSOR:
 
+// how far the camera center is off from the turret center (deg)
+// + = turret needs to rotate right, - = left
+    private static double TURRET_ANGLE_OFFSET_DEG = -2.3; // tune this
 
     public static boolean locktarget = false;
 
     private DcMotor turret;
 
 
-    private double acceptableTurretErrorDeg = 1.5;
+    private double acceptableTurretErrorDeg = 0.5;
 
 
     private Limelight3A limelight;
@@ -68,8 +71,6 @@ public class LimeLight {
 
         turret = hardwareMap.get(DcMotor.class, "T");
         turret.setDirection(DcMotor.Direction.FORWARD); // or REVERSE, test both
-
-        turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -166,30 +167,53 @@ public class LimeLight {
                         double x = tagPoseCamera.getPosition().x; // left/right
                         double z = tagPoseCamera.getPosition().z; // forward
 
-                        // angle to tag (deg), 0 = centered
+
+
                         double angleDeg = Math.toDegrees(Math.atan2(x, z));
 
-                        double errorDeg = angleDeg;
+// apply calibration offset
+                        double errorDeg = angleDeg - TURRET_ANGLE_OFFSET_DEG;
 
                         if (Math.abs(errorDeg) > acceptableTurretErrorDeg) {
-                            locktarget = true;
 
-                            double kP = 0.02;
+                            double kP = 0.2;
+                            double kF = 0.05;
+
                             double turretPower = errorDeg * kP;
 
-                            turretPower = clamp(turretPower, -0.4, 0.4);
+// feedforward to overcome static friction
+                            turretPower += Math.copySign(kF, turretPower);
 
-                            if (Math.abs(turretPower) < 0.15) {
-                                turretPower = Math.copySign(0.15, turretPower);
+// clamp last
+                            turretPower = clamp(turretPower, -1, 1);
+
+                            if (Math.abs(errorDeg) < 0.5) {
+                                turretPower *= 0.3;
                             }
+
                             turret.setPower(turretPower);
 
                         } else {
-
+                            color = 0.5f;
                             turret.setPower(0.0);
 
                         }
                     }
+
+                    if(distance > 2.7 && distance < 5)
+                    {
+                        TURRET_ANGLE_OFFSET_DEG =-7;
+                    }
+                    else if(distance < 2.7 && distance > 1.5)
+                    {
+                        TURRET_ANGLE_OFFSET_DEG =-0.5;
+                    }
+
+                    else{
+                        TURRET_ANGLE_OFFSET_DEG = 0;
+                    }
+                    distance = computeDistanceToFiducial(fr, telemetry); // meter
+                    telemetry.addData("Dist", "%.2f", distance);
                 }
 
                 //if we see the limelight id code as (20)
@@ -208,36 +232,57 @@ public class LimeLight {
 
                         double angleDeg = Math.toDegrees(Math.atan2(x, z));
 
-                        double errorDeg = angleDeg;
+
+                        double errorDeg = angleDeg - TURRET_ANGLE_OFFSET_DEG;
 
                         if (Math.abs(errorDeg) > acceptableTurretErrorDeg) {
 
                                 locktarget = true;
 
 
-                            double kP = 0.02;
+                            double kP = 0.2;
+                            double kF = 0.05;
+
                             double turretPower = errorDeg * kP;
 
+// feedforward to overcome static friction
+                            turretPower += Math.copySign(kF, turretPower);
+
+// clamp last
                             turretPower = clamp(turretPower, -0.6, 0.6);
 
-                            if (Math.abs(turretPower) < 0.15) {
-                                turretPower = Math.copySign(0.15, turretPower);
+                            if (Math.abs(errorDeg) < 0.5) {
+                                turretPower *= 0.3;
                             }
 
-                            turret.setPower(turretPower + 0.1);
+                            turret.setPower(turretPower);
 
                         } else {
-
+                            color = 0.5f;
                             turret.setPower(0.0);
 
                         }
                     }
 
                     distance = computeDistanceToFiducial(fr, telemetry); // meter
+
+                    if(distance > 2.7 && distance < 5)
+                    {
+                        TURRET_ANGLE_OFFSET_DEG =-7;
+                    }
+                    else if(distance < 2.7 && distance > 1.5)
+                    {
+                        TURRET_ANGLE_OFFSET_DEG =-0.5;
+                    }
+
+                    else{
+                        TURRET_ANGLE_OFFSET_DEG = 0;
+                    }
                     telemetry.addData("Dist", "%.2f", distance);
                 }
 
                  else{
+                    color = 0.4f;
                     locktarget = false;
                 }
 
@@ -250,6 +295,7 @@ public class LimeLight {
             }
 
             else{
+                color = 0.4f;
                 locktarget = false;
             }
 
@@ -258,6 +304,7 @@ public class LimeLight {
         }
 
         else{
+            color = 0.4f;
             locktarget = false;
         }
 
