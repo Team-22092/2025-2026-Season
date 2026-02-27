@@ -104,6 +104,11 @@ public class Flick {
         timer.reset();
     }
 
+    public void setPattern(List<String> pattern) {
+        if (pattern == null || pattern.size() < 3) return;
+        PATTERN = new ArrayList<>(pattern.subList(0, 3));
+    }
+
     public void updateAutoBurst() {
         if (!busy) return;
         handleStateMachine();
@@ -117,7 +122,7 @@ public class Flick {
         switch (state) {
 
             case SPINUP_1:
-                shooter.spinUp(); // just ensure wheels are running
+                shooter.spinUp();
                 setFlickerPos(shootOrder.get(0), true);
                 state = State.S1_UP;
                 timer.reset();

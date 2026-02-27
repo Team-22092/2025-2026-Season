@@ -24,6 +24,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -52,6 +53,7 @@ public class LimeLight {
     public static boolean locktarget = false;
 
     private DcMotor turret;
+    private boolean turretControlEnabled = true;
 
 
     private double acceptableTurretErrorDeg = 0.5;
@@ -111,11 +113,55 @@ public class LimeLight {
     } //end of Lime Light
 
     public List<String> Parts = new ArrayList<>();
+    private static final List<String> SAVED_PATTERN = new ArrayList<>(Arrays.asList("P", "P", "G"));
+
+    public void setTurretControlEnabled(boolean enabled) {
+        turretControlEnabled = enabled;
+        if (!turretControlEnabled) {
+            turret.setPower(0.0);
+        }
+    }
+
+    public void centerTurretForAuto() {
+        turretControlEnabled = false;
+        turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        turret.setTargetPosition(275);
+        turret.setPower(1.0);
+    }
+
+    public synchronized void detectAndSavePattern() {
+        String c0 = GetColors(0);
+        String c1 = GetColors(1);
+        String c2 = GetColors(2);
+
+        if (isPatternValue(c0) && isPatternValue(c1) && isPatternValue(c2)) {
+            savePattern(Arrays.asList(c0, c1, c2));
+        }
+    }
+
+    public static synchronized void savePattern(List<String> pattern) {
+        if (pattern == null || pattern.size() < 3) return;
+        if (!isPatternValue(pattern.get(0)) || !isPatternValue(pattern.get(1)) || !isPatternValue(pattern.get(2))) return;
+
+        SAVED_PATTERN.clear();
+        SAVED_PATTERN.add(pattern.get(0));
+        SAVED_PATTERN.add(pattern.get(1));
+        SAVED_PATTERN.add(pattern.get(2));
+    }
+
+    public static synchronized List<String> getSavedPattern() {
+        return new ArrayList<>(SAVED_PATTERN);
+    }
+
+    private static boolean isPatternValue(String colorValue) {
+        return "P".equals(colorValue) || "G".equals(colorValue);
+    }
 
 
 
-    public void LimeLightOpMode(Telemetry telemetry, ColorTest colorTest) //final code wont have telem value, this is for testing
+    public void LimeLightOpMode(Telemetry telemetry, ColorTest colorTest, String SIDE) //final code wont have telem value, this is for testing
     {
+        //SIDE = B/R
         /*
             This block (Yaw, Limelight, LLResult) was moved up for better limelight pipeline switching.
         */
@@ -123,9 +169,14 @@ public class LimeLight {
         limelight.updateRobotOrientation(orientation.getYaw()); //get the yaw from the rev hub, way more accurate.
         LLResult result = limelight.getLatestResult(); //Pull the results from the limelight
 
-        if(result.getPipelineIndex() != 0); //we want to avoid trying to update it every frame, as this could cause slowness if they haven't factored in switching
-        {
+        if (result == null || result.getPipelineIndex() != 0) { //we want to avoid trying to update it every frame, as this could cause slowness if they haven't factored in switching
             limelight.pipelineSwitch(0); // we attempt to switch it, this is for auto.
+        }
+
+        if (result == null) {
+            color = 0.4f;
+            locktarget = false;
+            return;
         }
 
 
@@ -135,7 +186,7 @@ public class LimeLight {
 
 
 
-
+        //@TODO check the feild tags for proper naming
 
         //colorTest.moveRight = false;
         if(result.isValid()) { //If its valid, keep going
@@ -191,11 +242,15 @@ public class LimeLight {
                                 turretPower *= 0.3;
                             }
 
-                            turret.setPower(turretPower);
+                            if (turretControlEnabled) {
+                                turret.setPower(turretPower);
+                            }
 
                         } else {
                             color = 0.5f;
-                            turret.setPower(0.0);
+                            if (turretControlEnabled) {
+                                turret.setPower(0.0);
+                            }
 
                         }
                     }
@@ -206,7 +261,7 @@ public class LimeLight {
                     }
                     else if(distance < 2.7 && distance > 1.5)
                     {
-                        TURRET_ANGLE_OFFSET_DEG =-0.5;
+                        TURRET_ANGLE_OFFSET_DEG =-2;
                     }
 
                     else{
@@ -255,11 +310,15 @@ public class LimeLight {
                                 turretPower *= 0.3;
                             }
 
-                            turret.setPower(turretPower);
+                            if (turretControlEnabled) {
+                                turret.setPower(turretPower);
+                            }
 
                         } else {
                             color = 0.5f;
-                            turret.setPower(0.0);
+                            if (turretControlEnabled) {
+                                turret.setPower(0.0);
+                            }
 
                         }
                     }
@@ -272,7 +331,7 @@ public class LimeLight {
                     }
                     else if(distance < 2.7 && distance > 1.5)
                     {
-                        TURRET_ANGLE_OFFSET_DEG =-0.5;
+                        TURRET_ANGLE_OFFSET_DEG =-2;
                     }
 
                     else{
@@ -374,6 +433,10 @@ public class LimeLight {
                     Parts.add("P");
 
                 }}}
+
+        if (Parts.size() >= 3) {
+            savePattern(Parts);
+        }
 
         return Parts.get((int) part); // return the one we detect for the auto
     }

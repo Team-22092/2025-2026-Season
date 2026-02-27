@@ -1,26 +1,15 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
 import androidx.annotation.NonNull;
-
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Arclength;
-import com.acmerobotics.roadrunner.CompositeAccelConstraint;
-import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Pose2dDual;
-import com.acmerobotics.roadrunner.PosePath;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.ColorTest;
 import org.firstinspires.ftc.teamcode.hardware.Flick;
@@ -29,264 +18,219 @@ import org.firstinspires.ftc.teamcode.hardware.LimeLight;
 import org.firstinspires.ftc.teamcode.hardware.ShootWheels;
 import org.firstinspires.ftc.teamcode.hardware.Sort;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Autonomous(name = "OnSkibAutoFRRRR")
 public class RedSideShoot extends LinearOpMode {
 
-
     @Override
     public void runOpMode() throws InterruptedException {
-        // init shooter
-        ShootWheels shootWheels = new ShootWheels(hardwareMap);
-       // Flick flick = new Flick(hardwareMap);
 
+        // ------------------------------
+        // Hardware initialization
+        // ------------------------------
+        ShootWheels shootWheels = new ShootWheels(hardwareMap);
+        Flick flick = new Flick(hardwareMap, shootWheels); // Flick uses the shooter internally
         LimeLight limeLight = new LimeLight(hardwareMap, telemetry);
+        limeLight.centerTurretForAuto();
+        ColorTest colorTest = new ColorTest(hardwareMap, telemetry);
+        Intake intake = new Intake(hardwareMap);
+        Sort sort = new Sort(hardwareMap);
+
+        // ------------------------------
+        // Initial pose and drivetrain
+        // ------------------------------
+        Pose2d initialPose = new Pose2d(69, 11, Math.toRadians(180));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
+
         final float[] sortposup = {0};
         final boolean[] flipdir = new boolean[1];
 
-
-        ColorTest colorTest = new ColorTest(hardwareMap, telemetry);
-
-        Intake intake = new Intake(hardwareMap);
-
-        Sort sort = new Sort(hardwareMap);
-
-
-
-        // TODO - MAKE SURE TO UPDATE INITIAL POSITION
-        Pose2d initialPose =  new Pose2d(69, 11, Math.toRadians(180));
-        MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
-
+        // ------------------------------
+        // Main Action timeline
+        // ------------------------------
         Action MainAction = drive.actionBuilder(initialPose)
 
+                .afterTime(0, () -> {
+                    // read initial colors if needed
+                    String c0 = limeLight.GetColors(0);
+                    String c1 = limeLight.GetColors(1);
 
-                .strafeTo(new Vector2d(60, 14))
+                    if (c0.equals("P") && c1.equals("G")) sort.sort.setPosition(0.19);
+                    else if (c0.equals("P") && c1.equals("P")) sort.sort.setPosition(0.56);
+                    else if (c0.equals("G") && c1.equals("P")) sort.sort.setPosition(0.935);
+                })
+
+                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-209))
+
+                // first auto-burst
+                .afterTime(3, () -> {
+                    if (Objects.equals(limeLight.GetColors(0), "P")) sort.sort.setPosition(0.19);
+                    else sort.sort.setPosition(0.935);
+                })
+                .afterTime(3.5, flick::startAutoBurst)
+
+                // second auto-burst
+                .afterTime(5, () -> {
+                    if (Objects.equals(limeLight.GetColors(1), "P")) sort.sort.setPosition(0.56);
+                    else sort.sort.setPosition(0.935);
+                })
+                .afterTime(6.0, flick::startAutoBurst)
+
+                // third auto-burst
+                .afterTime(8, () -> {
+                    if (Objects.equals(limeLight.GetColors(2), "P") && Objects.equals(limeLight.GetColors(1), "P"))
+                        sort.sort.setPosition(0.19);
+                    else if (Objects.equals(limeLight.GetColors(2), "P"))
+                        sort.sort.setPosition(0.56);
+                    else
+                        sort.sort.setPosition(0.935);
+                })
+                .afterTime(9.0, flick::startAutoBurst)
 
 
-//                .afterTime(0.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
-//                .afterTime(0.8, new InstantAction(() ->  flick.flickthing.setPosition(0.2)))
 
+                .afterTime(11, intake::IntakeON)
+                .waitSeconds(11)
 
-//////
-
-                .strafeToLinearHeading(new Vector2d(32, 32), Math.toRadians(90))
-                .strafeTo(new Vector2d(32, 60))
-                .strafeToLinearHeading(new Vector2d(60, 14), Math.toRadians(-180))
-                .strafeTo(new Vector2d(60, 14))
-
-
-
-
-//
-//
-//
-//
-                .strafeToLinearHeading(new Vector2d(11, 32), Math.toRadians(90))
-                .strafeTo(new Vector2d(11, 60))
-                .strafeToLinearHeading(new Vector2d(60, 14), Math.toRadians(-180))
+                // Drive path
+                .strafeToLinearHeading(new Vector2d(39, 32), Math.toRadians(90))
+                .strafeTo(new Vector2d(40, 60), new TranslationalVelConstraint(20),
+                        new ProfileAccelConstraint(-20, 20))
+                .strafeTo(new Vector2d(35, 32))
+                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-207.5))
 
 
 
+                .afterTime(0, intake::IntakeOFF)
+                .afterTime(0, () -> sort.sort.setPosition(0.19))
 
-                .strafeToLinearHeading(new Vector2d(60, 40), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(60, 60), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(60, 14), Math.toRadians(-180))
+                // Second phase: further auto-bursts
+                .afterTime(1.5, flick::startAutoBurst)
+                .afterTime(3, () -> sort.sort.setPosition(0.56))
+                .afterTime(4.0, flick::startAutoBurst)
+                .afterTime(6, () -> sort.sort.setPosition(0.935))
+                .afterTime(7.0, flick::startAutoBurst)
+
+                .waitSeconds(7.6)
+                .strafeTo(new Vector2d(35, 32))
                 .build();
 
+        // ------------------------------
+        // Pre-start loop (color detection & telemetry)
+        // ------------------------------
         while (!isStarted() && !isStopRequested()) {
+            limeLight.detectAndSavePattern();
+            List<String> savedPattern = LimeLight.getSavedPattern();
+            flick.setPattern(savedPattern);
 
-            if(Objects.equals(limeLight.GetColors(0), "P") && Objects.equals(limeLight.GetColors(1), "G"))
-            {
-               // sort.sort.setPosition(0.19);
-                telemetry.addData("FIRST ONE", "P");
+            String c0 = savedPattern.get(0);
+            String c1 = savedPattern.get(1);
 
-            }
-            else if(Objects.equals(limeLight.GetColors(0), "P") && Objects.equals(limeLight.GetColors(1), "P"))
-            {
-                telemetry.addData("FIRST ONE", "P");
-               // sort.sort.setPosition(0.56);
-            }
-            else if(Objects.equals(limeLight.GetColors(0), "G") && Objects.equals(limeLight.GetColors(1), "P")) {
-              //  sort.sort.setPosition(0.935);
-                telemetry.addData("FIRST ONE", "G");
-            }
+            if (Objects.equals(c0, "P") && Objects.equals(c1, "G")) telemetry.addData("FIRST ONE", "P");
+            else if (Objects.equals(c0, "P") && Objects.equals(c1, "P")) telemetry.addData("FIRST ONE", "P");
+            else if (Objects.equals(c0, "G") && Objects.equals(c1, "P")) telemetry.addData("FIRST ONE", "G");
 
+            String code = savedPattern.get(0) + savedPattern.get(1) + savedPattern.get(2);
+            telemetry.addData("Detected Code", code);
+            telemetry.addData("Saved Pattern", "%s-%s-%s", savedPattern.get(0), savedPattern.get(1), savedPattern.get(2));
             telemetry.addData("Status", "Waiting for Start - Alliance: Red");
-
             telemetry.addLine("READY! GOOD LUCK :)");
-
             telemetry.update();
-            idle(); // Important to yield the processor to other processes
+            idle();
         }
-
-
 
         waitForStart();
         if (isStopRequested()) return;
 
-        // --- Shooter thread (unchanged) ---
+        flick.setPattern(LimeLight.getSavedPattern());
+
+        // ------------------------------
+        // Shooter thread
+        // ------------------------------
         final AtomicBoolean keepShooting = new AtomicBoolean(true);
         Thread shooterThread = new Thread(() -> {
             while (opModeIsActive() && keepShooting.get()) {
                 try {
-                  //  shootWheels.AutoSHOOT(limeLight, hardwareMap, telemetry);
+                    shootWheels.AutoSHOOT(limeLight, hardwareMap, telemetry);
                 } catch (Exception e) {
                     e.printStackTrace();
                     break;
                 }
-                try { Thread.sleep(20); } catch (InterruptedException ignored) { break; }
+                try { Thread.sleep(20); } catch (InterruptedException ignored) {}
             }
-            // optional final stop
-
         }, "ShooterThread");
         shooterThread.start();
 
-
-
-
-
-
-
-
-        final AtomicBoolean SORT = new AtomicBoolean(true);
-        Thread SORTThread = new Thread(() -> {
-            while (opModeIsActive() && SORT.get()) {
-                try {
-
-//                    if(sort.carroselOn) //@hack CHANGED CARROSELON, NEEDS TO BE FIXED.
-//                    {
-//                        sort.sort.setPosition(sortposup[0]);
-//                        if(sortposup[0] >= 1)
-//                        {
-//                            flipdir[0] = !flipdir[0];
-//                        }
-//                        if(sortposup[0] <= 0){
-//                            flipdir[0] = !flipdir[0];
-//                        }
-//
-//
-//                        if(flipdir[0])    sortposup[0] = (float) (sortposup[0] + 0.015);
-//
-//                        if(!flipdir[0])    sortposup[0] = (float) (sortposup[0] - 0.015);
-//
-//
-//                    }
-
-
-
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    break;
-                }
-                try { Thread.sleep(20); } catch (InterruptedException ignored) { break; }
-            }
-            // optional final stop
-
-        }, "sort");
-
-        SORTThread.start();
-
-
-
-
+        // ------------------------------
+        // Intake thread
+        // ------------------------------
         final AtomicBoolean INTAKE = new AtomicBoolean(true);
         Thread INTAKEThread = new Thread(() -> {
             while (opModeIsActive() && INTAKE.get()) {
                 try {
-
-                    if(intake.IntakeON)
-                    {
-                        intake.spin_input.setPower(1);
-                      //  intake.intakepart.setPower(1);
-
-                    }
-
-
-
-
+                    if (intake.IntakeON) intake.spin_input.setPower(1);
                 } catch (Exception e) {
                     e.printStackTrace();
                     break;
                 }
-                try { Thread.sleep(20); } catch (InterruptedException ignored) { break; }
+                try { Thread.sleep(20); } catch (InterruptedException ignored) {}
             }
-            // optional final stop
-
         }, "intake");
-
         INTAKEThread.start();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // --- LimeLight thread: continuously call your limelight updater ---
+        // ------------------------------
+        // LimeLight updater thread
+        // ------------------------------
         final AtomicBoolean keepLime = new AtomicBoolean(true);
         Thread limeThread = new Thread(() -> {
             while (opModeIsActive() && keepLime.get()) {
-                try {
-                    // call your method that populates telemetry / reads yaw
-                    limeLight.LimeLightOpMode(telemetry,colorTest);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    break;
-                }
-                // ~50Hz update rate (adjust if you want faster/slower)
-                try { Thread.sleep(20); } catch (InterruptedException ignored) { break; }
+                try { limeLight.LimeLightOpMode(telemetry, colorTest, "R"); }
+                catch (Exception e) { e.printStackTrace(); break; }
+                try { Thread.sleep(20); } catch (InterruptedException ignored) {}
             }
         }, "LimeThread");
         limeThread.start();
 
+        // ------------------------------
+        // Flick updater thread
+        // ------------------------------
+        final AtomicBoolean keepFlick = new AtomicBoolean(true);
+        Thread flickThread = new Thread(() -> {
+            while (opModeIsActive() && keepFlick.get()) {
+                try { flick.updateAutoBurst(); }
+                catch (Exception e) { e.printStackTrace(); break; }
+                try { Thread.sleep(20); } catch (InterruptedException ignored) {}
+            }
+        }, "FlickThread");
+        flickThread.start();
 
-
-
-        // --- Run the main action (blocks until it finishes) ---
+        // ------------------------------
+        // Run main action timeline
+        // ------------------------------
         Actions.runBlocking(new ParallelAction(MainAction));
 
-        // --- After path completes: stop threads and cleanup ---
+        // ------------------------------
+        // Cleanup threads
+        // ------------------------------
         keepShooting.set(false);
         shooterThread.interrupt();
-
-
         try { shooterThread.join(500); } catch (InterruptedException ignored) {}
 
         keepLime.set(false);
         limeThread.interrupt();
         try { limeThread.join(500); } catch (InterruptedException ignored) {}
 
-
-        SORT.set(false);
-        try { SORTThread.interrupt(); SORTThread.join(500); } catch (Exception ignored) {}
-
-
         INTAKE.set(false);
-        try { SORTThread.interrupt(); SORTThread.join(500); } catch (Exception ignored) {}
+        try { INTAKEThread.join(200); } catch (InterruptedException ignored) {}
+
+        keepFlick.set(false);
+        flickThread.interrupt();
+        try { flickThread.join(500); } catch (InterruptedException ignored) {}
 
         telemetry.addLine("AUTO COMPLETE");
-
         telemetry.update();
     }
 }

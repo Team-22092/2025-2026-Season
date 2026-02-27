@@ -217,7 +217,7 @@ public class ShootWheels {
 
     public void spinUp() {
         wheelOn = true;
-        WHEEL_L.setVelocity(ourTargetVel + 100);
+        WHEEL_L.setVelocity(ourTargetVel + 300);
         WHEEL_R.setVelocity(ourTargetVel + 100);
         shouldusewheel = false;
     }

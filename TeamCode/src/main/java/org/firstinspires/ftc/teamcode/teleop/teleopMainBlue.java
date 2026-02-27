@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -14,17 +13,18 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.BallColor;
 import org.firstinspires.ftc.teamcode.hardware.ColorTest;
 import org.firstinspires.ftc.teamcode.hardware.Flick;
+import org.firstinspires.ftc.teamcode.hardware.Intake;
 import org.firstinspires.ftc.teamcode.hardware.LimeLight;
 import org.firstinspires.ftc.teamcode.hardware.SAVESHOTS;
 import org.firstinspires.ftc.teamcode.hardware.ShootWheels;
-import org.firstinspires.ftc.teamcode.hardware.Wheels;
-import org.firstinspires.ftc.teamcode.hardware.Intake;
 import org.firstinspires.ftc.teamcode.hardware.Sort;
+import org.firstinspires.ftc.teamcode.hardware.Wheels;
 
 import java.util.List;
+
 //RED SIDE
 @TeleOp(name = "Teleop Main") //this is the name that will appear on the Driver Station
-public class teleopMain extends OpMode { //extends opMode imports the info the station needs from OpMode class
+public class teleopMainBlue extends OpMode { //extends opMode imports the info the station needs from OpMode class
     MecanumDrive drive;
     DcMotor turret;
 
@@ -39,7 +39,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
     static final double TURRET_OFFSET_MAX_DEG = 30.0;
 
 
-    static final Vector2d TARGET_POS = new Vector2d(-67, 30);//-60, 50 for RIGHT, -60, -50 for LEFT
+    static final Vector2d TARGET_POS = new Vector2d(-67, -30);//-60, 50 for RIGHT, -60, -50 for LEFT
 
 
     Gamepad currentGamepadDrive = new Gamepad(); //Gamepad 1, of current inputs
@@ -92,6 +92,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         //TODO - Uncomment
 
         limeLight = new LimeLight(hardwareMap, telemetry); //Get the Limelight
+        flick.setPattern(LimeLight.getSavedPattern());
 
 
 
@@ -104,7 +105,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Set your starting position on the field (X, Y, Heading in Radians)
-        drive = new MecanumDrive(hardwareMap, new Pose2d(69, 11, Math.toRadians(180)));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(69, -11, Math.toRadians(180)));
 
 
         for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
@@ -173,7 +174,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
 
 
 
-        limeLight.LimeLightOpMode(telemetry, colorTest, "R"); //Pull the Yaw for the AprilTag, and display.
+        limeLight.LimeLightOpMode(telemetry, colorTest, "B"); //Pull the Yaw for the AprilTag, and display.
 
 
         saveshots.IntakeOpMode(gamepad2, shootWheels);
