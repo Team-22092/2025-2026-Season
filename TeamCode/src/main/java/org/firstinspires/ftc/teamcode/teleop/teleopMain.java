@@ -104,7 +104,7 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Set your starting position on the field (X, Y, Heading in Radians)
-        drive = new MecanumDrive(hardwareMap, new Pose2d(69, 11, Math.toRadians(180)));
+        drive = new MecanumDrive(hardwareMap, new Pose2d(35, 32, Math.toRadians(180)));
 
 
         for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
@@ -116,6 +116,8 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         for (LynxModule hub : all_hubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
+
+        flick.setPattern(LimeLight.getSavedPattern());
     }
 
 //Not needed Right now, but if we need something to move when the robot starts, we add it here:
@@ -239,9 +241,16 @@ public class teleopMain extends OpMode { //extends opMode imports the info the s
         if(LimeLight.locktarget == false)
         {
             // 7. Update Motor
-            turret.setTargetPosition((int) targetTicks);
+            turret.setTargetPosition(0);
             turret.setPower(1.0); // Full speed to track accurately while moving
 
+        }
+
+        // Check for touchpad press on Gamepad 2 (Copilot)
+        if (currentGamepadCopilot.touchpadWasPressed()) {
+            // Reset the robot's position to X=60, Y=60, while keeping current heading
+            double currentHeading = drive.localizer.getPose().heading.toDouble();
+            drive.localizer.setPose(new Pose2d(60, 60, currentHeading));
         }
 
         telemetry.addData("DRIVE POS - ", drive.localizer.getPose());

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -13,18 +12,19 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.BallColor;
 import org.firstinspires.ftc.teamcode.hardware.ColorTest;
 import org.firstinspires.ftc.teamcode.hardware.Flick;
-import org.firstinspires.ftc.teamcode.hardware.Intake;
 import org.firstinspires.ftc.teamcode.hardware.LimeLight;
 import org.firstinspires.ftc.teamcode.hardware.SAVESHOTS;
 import org.firstinspires.ftc.teamcode.hardware.ShootWheels;
-import org.firstinspires.ftc.teamcode.hardware.Sort;
 import org.firstinspires.ftc.teamcode.hardware.Wheels;
+import org.firstinspires.ftc.teamcode.hardware.Intake;
+import org.firstinspires.ftc.teamcode.hardware.Sort;
 
 import java.util.List;
 
-//RED SIDE
-@TeleOp(name = "Teleop Main") //this is the name that will appear on the Driver Station
-public class teleopMainBlue extends OpMode { //extends opMode imports the info the station needs from OpMode class
+// 🔵 BLUE SIDE
+@TeleOp(name = "Teleop Main Blue")
+public class teleopMainBlue extends OpMode {
+
     MecanumDrive drive;
     DcMotor turret;
 
@@ -38,102 +38,68 @@ public class teleopMainBlue extends OpMode { //extends opMode imports the info t
     static final double TURRET_OFFSET_STEP_DEG = 1.0;
     static final double TURRET_OFFSET_MAX_DEG = 30.0;
 
+    // MIRRORED FROM RED (-67, 30)
+    static final Vector2d TARGET_POS = new Vector2d(-67, -30);
 
-    static final Vector2d TARGET_POS = new Vector2d(-67, -30);//-60, 50 for RIGHT, -60, -50 for LEFT
+    Gamepad currentGamepadDrive = new Gamepad();
+    Gamepad currentGamepadCopilot = new Gamepad();
+    Gamepad prevGamepadCopilot = new Gamepad();
 
-
-    Gamepad currentGamepadDrive = new Gamepad(); //Gamepad 1, of current inputs
-    //Gamepad prevGamepadDrive = new Gamepad(); //Gamepad 1 last frame input, used for buttons (like a toggle)
-
-    Gamepad currentGamepadCopilot = new Gamepad(); //Gamepad 2, of current inputs
-    Gamepad prevGamepadCopilot = new Gamepad(); //Gamepad 2 last frame input, used for buttons (like a toggle)
-
-    Wheels wheels; //Get the wheels, this is a secondary func in HardWare.
+    Wheels wheels;
     Intake intake;
-
     SAVESHOTS saveshots;
-
     BallColor ballColor;
-
     ColorTest colorTest;
-
-
-
     Sort sort;
-    public LimeLight limeLight; //Get the Limelight
-
+    public LimeLight limeLight;
     public Flick flick;
+    ShootWheels shootWheels;
+
     double turretOffsetDeg = 0.0;
 
-    ShootWheels shootWheels; //Get the outtake wheels, this is a secondary func in HardWare.
     @Override
-    public void init()
-    {
-        //DO NOT RUN ANY MOVEMENT MOTORS
-
-        //DEFINE ANY HARDWARE MAPS BELOW.
-
-        //TODO - Uncomment
-       wheels = new Wheels(hardwareMap); //new hardware map for wheels.
+    public void init() {
+        wheels = new Wheels(hardwareMap);
         intake = new Intake(hardwareMap);
-
-
         saveshots = new SAVESHOTS(hardwareMap);
-
         ballColor = new BallColor(hardwareMap);
-
         colorTest = new ColorTest(hardwareMap, telemetry);
         shootWheels = new ShootWheels(hardwareMap);
-
-
         sort = new Sort(hardwareMap);
-
         flick = new Flick(hardwareMap, shootWheels);
-        //TODO - Uncomment
-
-        limeLight = new LimeLight(hardwareMap, telemetry); //Get the Limelight
-        flick.setPattern(LimeLight.getSavedPattern());
-
-
+        limeLight = new LimeLight(hardwareMap, telemetry);
 
         turret = hardwareMap.get(DcMotor.class, "T");
         turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        // STARTING CONDITION: Turret must be at the 0 position (Far Right) when you hit Init
-
+        turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // STARTING CONDITION: Turret must be at the 0 position (Far Left) when you hit Init
         turret.setTargetPosition(0);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        // Set your starting position on the field (X, Y, Heading in Radians)
-        drive = new MecanumDrive(hardwareMap, new Pose2d(69, -11, Math.toRadians(180)));
-
+        // Set your starting position on the field (Mirrored from Red: Y becomes negative)
+        drive = new MecanumDrive(hardwareMap, new Pose2d(35, -32, Math.toRadians(180)));
 
         for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        //Performance optimization by letting all hardware use bulk Caching.
         List<LynxModule> all_hubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : all_hubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
+
+        flick.setPattern(LimeLight.getSavedPattern());
+
+
     }
 
-//Not needed Right now, but if we need something to move when the robot starts, we add it here:
-//    @Override
-//    public void Start()
-//    {
-//
-//    }
-
-
     @Override
-    public void loop() //Main loop
-    {
-        //Define Gamepads //TODO - Uncomment
-       currentGamepadDrive.copy(gamepad1);
-       currentGamepadCopilot.copy(gamepad2);
+    public void loop() {
 
+        currentGamepadDrive.copy(gamepad1);
+        currentGamepadCopilot.copy(gamepad2);
+
+        // ====== TURRET OFFSET ADJUST ======
         if (currentGamepadCopilot.dpad_left && !prevGamepadCopilot.dpad_left) {
             turretOffsetDeg -= TURRET_OFFSET_STEP_DEG;
         }
@@ -143,82 +109,37 @@ public class teleopMainBlue extends OpMode { //extends opMode imports the info t
         if (turretOffsetDeg < -TURRET_OFFSET_MAX_DEG) turretOffsetDeg = -TURRET_OFFSET_MAX_DEG;
         if (turretOffsetDeg > TURRET_OFFSET_MAX_DEG) turretOffsetDeg = TURRET_OFFSET_MAX_DEG;
 
-
-
-        //This is for our last frame gamepads
-//        prevGamepadDrive.copy(currentGamepadDrive);
-
-
-
-        ballColor.pos = limeLight.color; //handoff for the color of hte ball
+        ballColor.pos = limeLight.color;
         telemetry.addData("COLORRETURN",  ballColor.pos);
-        //Run the drive
-        //TODO - DEFINE DIFFERENT PARTS OF THE ROBOT
 
-        wheels.ManualDrive(currentGamepadDrive); //Drive code --DO NOT REMOVE
+        wheels.ManualDrive(currentGamepadDrive);
         intake.IntakeOpMode(currentGamepadCopilot);
         sort.SortOpMode(currentGamepadCopilot, prevGamepadCopilot, flick);
         flick.FlickOpMode(currentGamepadCopilot, prevGamepadCopilot);
+        shootWheels.ShootWheelsOpMode(currentGamepadCopilot, prevGamepadCopilot, limeLight, hardwareMap);
 
-       shootWheels.ShootWheelsOpMode(currentGamepadCopilot, prevGamepadCopilot, limeLight, hardwareMap);
+        colorTest.COLOR();
 
-
-       colorTest.COLOR();
-
-
-          //Gets the copilot buttons and sends it to spin the motors
-
-        //LIMELIGHTPULL
-//
-//        //TODO - Will need to be updated
-
-
-
-        limeLight.LimeLightOpMode(telemetry, colorTest, "B"); //Pull the Yaw for the AprilTag, and display.
-
+        // Let Limelight handle alliance internally for Blue
+        limeLight.LimeLightOpMode(telemetry, colorTest, "B");
 
         saveshots.IntakeOpMode(gamepad2, shootWheels);
-
-
-
-        //TODO - STATE MACHINE GOES HERE.
-
-
         ballColor.ColorOpMode(telemetry);
 
-
-
-
-
-        //update telem, for side classes
-
-
-        //Do telem
-
-
-        //TODO - Uncomment
-        limeLight.Display_Telemetry(telemetry); //DISPLAY LIMELIGHT TELEM
-
-        //TODO - Uncomment
+        limeLight.Display_Telemetry(telemetry);
         shootWheels.Display_Telemetry(telemetry);
-
         sort.SortTelem(telemetry);
         telemetry.addData("Turret Offset (deg)", turretOffsetDeg);
-
-        telemetry.update();
 
         prevGamepadCopilot.copy(currentGamepadCopilot);
 
         // 1. Update Deadwheel Localization
         drive.updatePoseEstimate();
-        Pose2d currentPose = drive.localizer.getPose(); // RoadRunner 1.0 syntax
+        Pose2d currentPose = drive.localizer.getPose();
 
         // 2. Triangulate the Vector to the Goal
-        // This math calculates the angle from the ROBOT (x,y) to the GOAL (x,y)
         double dx = TARGET_POS.x - currentPose.position.x;
         double dy = TARGET_POS.y - currentPose.position.y;
-
-        // This is the absolute angle on the field (0 is usually pointing toward Red Backdrop)
         double absoluteAngleDeg = Math.toDegrees(Math.atan2(dy, dx));
 
         // 3. Convert Field Angle to Robot-Relative Angle
@@ -230,30 +151,32 @@ public class teleopMainBlue extends OpMode { //extends opMode imports the info t
         while (relativeAngle > 180) relativeAngle -= 360;
         while (relativeAngle <= -180) relativeAngle += 360;
 
-        // 5. Convert to Ticks with your Far-Right Offset
-        // Logic: (Angle * Ticks/Degree) + your "Center" point
-        double targetTicks = (relativeAngle * TICKS_PER_DEGREE) + TICKS_AT_FORWARD;
+        // 5. Convert to Ticks with your Far-Left Offset
+        // Because 0 is far left, moving right means negative ticks. Center is -275.
+        double targetTicks = (relativeAngle * TICKS_PER_DEGREE) - TICKS_AT_FORWARD;
 
         // 6. Safety Clamp (Prevents the turret from breaking itself)
-        if (targetTicks < 0) targetTicks = 0;
-        if (targetTicks > TURRET_MAX_TICKS) targetTicks = TURRET_MAX_TICKS;
-        if(LimeLight.locktarget == false)
-        {
-            // 7. Update Motor
-            turret.setTargetPosition((int) targetTicks);
-            turret.setPower(1.0); // Full speed to track accurately while moving
+        // Max limit is 0 (Far Left), Min limit is -550 (Far Right)
+        if (targetTicks > 0) targetTicks = 0;
+        if (targetTicks < -TURRET_MAX_TICKS) targetTicks = -TURRET_MAX_TICKS;
 
+        if (!LimeLight.locktarget) {
+            // 7. Update Motor
+            turret.setTargetPosition(0);
+            turret.setPower(1.0);
+        }
+
+
+
+        // Check for touchpad press on Gamepad 2 (Copilot)
+        if (currentGamepadCopilot.touchpadWasPressed()) {
+            // Reset the robot's position to X=60, Y=60, while keeping current heading
+            double currentHeading = drive.localizer.getPose().heading.toDouble();
+            drive.localizer.setPose(new Pose2d(60, -60, currentHeading));
         }
 
         telemetry.addData("DRIVE POS - ", drive.localizer.getPose());
-
-
-
+        telemetry.addData("Turret Ticks", targetTicks);
+        telemetry.update();
     }
-
-    //TODO - Add stop funct
-
-
-
-
 }

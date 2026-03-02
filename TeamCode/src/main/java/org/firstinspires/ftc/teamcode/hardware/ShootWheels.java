@@ -90,9 +90,9 @@ public class ShootWheels {
         if (wheelOn) {
             if (distance < 1.9 && distance >= 0) {
                 pos = 0.6;
-                ourTargetVel = 1200;
+                ourTargetVel = 1100;
             }
-            else if (distance < 2.3) {
+            else if (distance < 2.0) {
                 pos = 0.6;
                 ourTargetVel = 1260;
             }
@@ -190,29 +190,36 @@ public class ShootWheels {
 
 
     public void AutoSHOOT(LimeLight limeLight, HardwareMap hardwareMap, Telemetry telemetry) {
-        distance = limeLight.distance;
 
-        double idealVoltage = 13.50;
+
+            pos = 0.8;
+            ourTargetVel = 1460;
+
+
+
+
         double currentVoltage = myControlHubVoltageSensor.getVoltage();
-        double autoCompensation = idealVoltage / currentVoltage;
 
-        // Regression for power
-        double base = -0.01526 * Math.pow(distance, 2) + 0.13556 * distance + 0.35106;
-        double targetPower = base * autoCompensation;
 
-        // Regression for hood position
-        pos = 0.00305 * Math.pow(distance, 2) + -0.02711 * distance + 0.74979;
-        pos = Math.max(0.0, Math.min(1.0, pos));
-        hood.setPosition(pos);
-        if(shouldusewheel)
-        {
-            WHEEL_L.setPower(targetPower);
-            WHEEL_R.setPower(targetPower);
+        double liveF = F * (12.8 / currentVoltage);
 
+        PIDFCoefficients livePIDF = new PIDFCoefficients(P, 0.0, 0.0, liveF);
+        WHEEL_L.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, livePIDF);
+        WHEEL_R.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, livePIDF);
+        if(shouldusewheel) {
+            WHEEL_L.setVelocity(ourTargetVel);
+            WHEEL_R.setVelocity(ourTargetVel);
         }
 
-        telemetry.addData("Auto Power", targetPower);
-        telemetry.addData("Auto Hood", pos);
+
+        curVelocity = WHEEL_R.getVelocity(); //we only get right, cause they are linked.
+        error = ourTargetVel - (curVelocity);
+
+
+
+        //set hood.
+
+        hood.setPosition(pos);
     }
 
     public void spinUp() {

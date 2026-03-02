@@ -2,6 +2,8 @@ package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.ProfileAccelConstraint;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
@@ -16,10 +18,10 @@ public class MeepMeepTesting {
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(69, 11, -180))
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-56, 52, -180))
 
 
-                .strafeTo(new Vector2d(60, 14))
+                .strafeTo(new Vector2d(32, 52))
 
 
 //                .afterTime(0.5, new InstantAction(() -> flick.flickthing.setPosition(1.0)))
@@ -28,22 +30,10 @@ public class MeepMeepTesting {
 
 //////
 
-                .strafeToLinearHeading(new Vector2d(32, 32), Math.toRadians(90))
-                .strafeTo(new Vector2d(32, 60))
-                .strafeToLinearHeading(new Vector2d(60, 14), Math.toRadians(-180))
-                .strafeTo(new Vector2d(60, 14))
-
-
-
-
-//
-//
-//
-//
-                .strafeToLinearHeading(new Vector2d(11, 32), Math.toRadians(90))
-                .strafeTo(new Vector2d(11, 60))
-                .strafeToLinearHeading(new Vector2d(60, 14), Math.toRadians(-180))
-
+                .strafeTo(new Vector2d(38, -60), new TranslationalVelConstraint(20),
+                        new ProfileAccelConstraint(-20, 20))
+                .strafeTo(new Vector2d(35, -32))
+                .strafeToLinearHeading(new Vector2d(62, -11), Math.toRadians(200.5))
 
 
 

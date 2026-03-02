@@ -53,37 +53,52 @@ public class BlueSideShoot extends LinearOpMode {
                     // read initial colors if needed
                     String c0 = limeLight.GetColors(0);
                     String c1 = limeLight.GetColors(1);
+                    String c2 = limeLight.GetColors(2);
+
+                    if(Objects.equals(c0, "G") && Objects.equals(c1, "P") && Objects.equals(c2, "P"))
+                    {
+                        flick.GPP();
+                    }
+                    if(Objects.equals(c0, "P") && Objects.equals(c1, "P") && Objects.equals(c2, "G"))
+                    {
+                        flick.PPG();
+                    }
+                    if(Objects.equals(c0, "P") && Objects.equals(c1, "G") && Objects.equals(c2, "P"))
+                    {
+                        flick.PGP();
+                    }
+
                 })
-                .strafeToLinearHeading(new Vector2d(60, -11), Math.toRadians(203))
+                .strafeToLinearHeading(new Vector2d(60, -13), Math.toRadians(204))
 
                 // start first auto-burst (all three disks)
-                .afterTime(3.5, flick::startAutoBurst)
+                .afterTime(3.8, flick::startAutoBurstAuto)
 
                 // Carousel + intake
-                .afterTime(11, sort::CarroselOn)
-                .afterTime(11, intake::IntakeON)
-                .waitSeconds(11)
+                .afterTime(7, sort::CarroselOn)
+                .afterTime(7, intake::IntakeON)
+                .waitSeconds(7)
 
-                // Drive to next position
+                .strafeToLinearHeading(new Vector2d(37, -34), Math.toRadians(-90))
                 .strafeTo(new Vector2d(38, -60), new TranslationalVelConstraint(20),
                         new ProfileAccelConstraint(-20, 20))
                 .strafeTo(new Vector2d(35, -32))
-                .strafeToLinearHeading(new Vector2d(62, -11), Math.toRadians(200.5))
+                .strafeToLinearHeading(new Vector2d(62, -15), Math.toRadians(194))
 
                 // Turn off carousel and intake, reset sorter
-                .afterTime(0, sort::CarroselOff)
+
                 .afterTime(0, intake::IntakeOFF)
                 .afterTime(0, () -> sort.sort.setPosition(0.19))
 
                 // optional second auto-burst later
-                .afterTime(1.5, flick::startAutoBurst)
+                .afterTime(1.5, flick::startAutoBurstAuto)
 
-                .afterTime(3, () -> sort.sort.setPosition(0.56))
-                .afterTime(6, () -> sort.sort.setPosition(0.935))
-
-                .waitSeconds(7.6)
+                .waitSeconds(5.6)
                 .strafeTo(new Vector2d(35, -32))
+
+
                 .waitSeconds(15)
+                //set the turret large.
                 .build();
 
         // ------------------------------
@@ -104,6 +119,7 @@ public class BlueSideShoot extends LinearOpMode {
             } else if (Objects.equals(c0, "G") && Objects.equals(c1, "P")) {
                 telemetry.addData("FIRST ONE", "G");
             }
+
             String code = savedPattern.get(0) + savedPattern.get(1) + savedPattern.get(2);
             telemetry.addData("Detected Code", code);
             telemetry.addData("Saved Pattern", "%s-%s-%s", savedPattern.get(0), savedPattern.get(1), savedPattern.get(2));

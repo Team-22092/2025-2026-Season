@@ -12,7 +12,7 @@ public class Flick {
     private static final double F1_DOWN = 1.0, F1_UP = 0.3;
     private static final double F2_DOWN = 0.0, F2_UP = 0.6;
     private static final double F3_DOWN = 1.0, F3_UP = 0.0;
-    private static final double MOVE_TIME = 0.4;
+    private static double MOVE_TIME = 0.4;
 
     private final ElapsedTime timer = new ElapsedTime();
     private boolean busy = false;
@@ -69,18 +69,25 @@ public class Flick {
         boolean pressed = oldGamepad2 != null && gamepad2.b && !oldGamepad2.b;
 
         if (pressed && !busy) {
-            startAutoBurst();
+            startTELEOPBurstAuto();
         }
 
         if (!busy) return;
         handleStateMachine();
     }
 
-    public void startAutoBurst() {
+    public void startAutoBurst(boolean isAuto) {
         if (busy) return;
 
         shootOrder.clear();
 
+        if(isAuto)
+        {
+            MOVE_TIME = 0.5;
+        }
+        else{
+            MOVE_TIME = 0.2;
+        }
         String[] detected = {getColor(C1), getColor(C2), getColor(C3)};
         boolean[] used = {false, false, false};
 
@@ -186,5 +193,22 @@ public class Flick {
                 }
                 break;
         }
+    }
+
+    public void startAutoBurstAuto() {
+        startAutoBurst(true);
+    }
+    public void startTELEOPBurstAuto() {
+        startAutoBurst(true);
+    }
+
+    public void PGP(){
+        PATTERN = new ArrayList<>(List.of("P", "G", "P"));
+    }
+    public void GPP(){
+        PATTERN = new ArrayList<>(List.of("G", "P", "P"));
+    }
+    public void PPG(){
+        PATTERN = new ArrayList<>(List.of("P", "P", "G"));
     }
 }

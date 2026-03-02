@@ -52,7 +52,7 @@ public class LimeLight {
 
     public static boolean locktarget = false;
 
-    private DcMotor turret;
+    public DcMotor turret;
     private boolean turretControlEnabled = true;
 
 
@@ -124,8 +124,10 @@ public class LimeLight {
 
     public void centerTurretForAuto() {
         turretControlEnabled = false;
+        turret.setTargetPosition(0);
         turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        turret.setTargetPosition(275);
+
+
         turret.setPower(1.0);
     }
 
@@ -239,17 +241,17 @@ public class LimeLight {
                             turretPower = clamp(turretPower, -1, 1);
 
                             if (Math.abs(errorDeg) < 0.5) {
-                                turretPower *= 0.3;
+
                             }
 
                             if (turretControlEnabled) {
-                                turret.setPower(turretPower);
+
                             }
 
                         } else {
                             color = 0.5f;
                             if (turretControlEnabled) {
-                                turret.setPower(0.0);
+
                             }
 
                         }
@@ -261,7 +263,7 @@ public class LimeLight {
                     }
                     else if(distance < 2.7 && distance > 1.5)
                     {
-                        TURRET_ANGLE_OFFSET_DEG =-2;
+                        TURRET_ANGLE_OFFSET_DEG =-3;
                     }
 
                     else{
@@ -307,17 +309,17 @@ public class LimeLight {
                             turretPower = clamp(turretPower, -0.6, 0.6);
 
                             if (Math.abs(errorDeg) < 0.5) {
-                                turretPower *= 0.3;
+
                             }
 
                             if (turretControlEnabled) {
-                                turret.setPower(turretPower);
+
                             }
 
                         } else {
                             color = 0.5f;
                             if (turretControlEnabled) {
-                                turret.setPower(0.0);
+
                             }
 
                         }

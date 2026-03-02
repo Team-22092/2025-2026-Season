@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Autonomous(name = "OnSkibAutoFRRRR")
+@Autonomous(name = "REDOnSkibAutoFRRRR")
 public class RedSideShoot extends LinearOpMode {
 
     @Override
@@ -42,80 +42,45 @@ public class RedSideShoot extends LinearOpMode {
         // ------------------------------
         // Initial pose and drivetrain
         // ------------------------------
-        Pose2d initialPose = new Pose2d(69, 11, Math.toRadians(180));
+        Pose2d initialPose = new Pose2d(69, 11, Math.toRadians(-180));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
-
-        final float[] sortposup = {0};
-        final boolean[] flipdir = new boolean[1];
 
         // ------------------------------
         // Main Action timeline
         // ------------------------------
         Action MainAction = drive.actionBuilder(initialPose)
-
                 .afterTime(0, () -> {
                     // read initial colors if needed
                     String c0 = limeLight.GetColors(0);
                     String c1 = limeLight.GetColors(1);
-
-                    if (c0.equals("P") && c1.equals("G")) sort.sort.setPosition(0.19);
-                    else if (c0.equals("P") && c1.equals("P")) sort.sort.setPosition(0.56);
-                    else if (c0.equals("G") && c1.equals("P")) sort.sort.setPosition(0.935);
                 })
+                .strafeToLinearHeading(new Vector2d(60, 13), Math.toRadians(-205))
 
-                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-209))
+                // start first auto-burst (all three disks)
+                .afterTime(3.6, flick::startAutoBurstAuto)
 
-                // first auto-burst
-                .afterTime(3, () -> {
-                    if (Objects.equals(limeLight.GetColors(0), "P")) sort.sort.setPosition(0.19);
-                    else sort.sort.setPosition(0.935);
-                })
-                .afterTime(3.5, flick::startAutoBurst)
+                // Carousel + intake
 
-                // second auto-burst
-                .afterTime(5, () -> {
-                    if (Objects.equals(limeLight.GetColors(1), "P")) sort.sort.setPosition(0.56);
-                    else sort.sort.setPosition(0.935);
-                })
-                .afterTime(6.0, flick::startAutoBurst)
+                .afterTime(7, intake::IntakeON)
+                .waitSeconds(7)
 
-                // third auto-burst
-                .afterTime(8, () -> {
-                    if (Objects.equals(limeLight.GetColors(2), "P") && Objects.equals(limeLight.GetColors(1), "P"))
-                        sort.sort.setPosition(0.19);
-                    else if (Objects.equals(limeLight.GetColors(2), "P"))
-                        sort.sort.setPosition(0.56);
-                    else
-                        sort.sort.setPosition(0.935);
-                })
-                .afterTime(9.0, flick::startAutoBurst)
-
-
-
-                .afterTime(11, intake::IntakeON)
-                .waitSeconds(11)
-
-                // Drive path
-                .strafeToLinearHeading(new Vector2d(39, 32), Math.toRadians(90))
-                .strafeTo(new Vector2d(40, 60), new TranslationalVelConstraint(20),
+                .strafeToLinearHeading(new Vector2d(38, 20), Math.toRadians(90))
+                .strafeTo(new Vector2d(38, 60), new TranslationalVelConstraint(20),
                         new ProfileAccelConstraint(-20, 20))
                 .strafeTo(new Vector2d(35, 32))
-                .strafeToLinearHeading(new Vector2d(60, 11), Math.toRadians(-207.5))
+                .strafeToLinearHeading(new Vector2d(62, 15), Math.toRadians(-196))
 
-
+                // Turn off carousel and intake, reset sorter
 
                 .afterTime(0, intake::IntakeOFF)
                 .afterTime(0, () -> sort.sort.setPosition(0.19))
 
-                // Second phase: further auto-bursts
-                .afterTime(1.5, flick::startAutoBurst)
-                .afterTime(3, () -> sort.sort.setPosition(0.56))
-                .afterTime(4.0, flick::startAutoBurst)
-                .afterTime(6, () -> sort.sort.setPosition(0.935))
-                .afterTime(7.0, flick::startAutoBurst)
+                // optional second auto-burst later
+                .afterTime(1.5, flick::startAutoBurstAuto)
 
                 .waitSeconds(7.6)
-                .strafeTo(new Vector2d(35, 32))
+                .strafeToLinearHeading(new Vector2d(35, 32), Math.toRadians(180))
+                .waitSeconds(15)
                 .build();
 
         // ------------------------------
@@ -129,19 +94,25 @@ public class RedSideShoot extends LinearOpMode {
             String c0 = savedPattern.get(0);
             String c1 = savedPattern.get(1);
 
-            if (Objects.equals(c0, "P") && Objects.equals(c1, "G")) telemetry.addData("FIRST ONE", "P");
-            else if (Objects.equals(c0, "P") && Objects.equals(c1, "P")) telemetry.addData("FIRST ONE", "P");
-            else if (Objects.equals(c0, "G") && Objects.equals(c1, "P")) telemetry.addData("FIRST ONE", "G");
+            if (Objects.equals(c0, "P") && Objects.equals(c1, "G")) {
+                telemetry.addData("FIRST ONE", "P");
+            } else if (Objects.equals(c0, "P") && Objects.equals(c1, "P")) {
+                telemetry.addData("FIRST ONE", "P");
+            } else if (Objects.equals(c0, "G") && Objects.equals(c1, "P")) {
+                telemetry.addData("FIRST ONE", "G");
+            }
 
             String code = savedPattern.get(0) + savedPattern.get(1) + savedPattern.get(2);
             telemetry.addData("Detected Code", code);
             telemetry.addData("Saved Pattern", "%s-%s-%s", savedPattern.get(0), savedPattern.get(1), savedPattern.get(2));
-            telemetry.addData("Status", "Waiting for Start - Alliance: Red");
+            telemetry.addData("Status", "Waiting for Start - Alliance: Blue");
             telemetry.addLine("READY! GOOD LUCK :)");
             telemetry.update();
             idle();
         }
 
+        telemetry.addLine("READY! GOOD LUCK :)");
+        telemetry.update();
         waitForStart();
         if (isStopRequested()) return;
 
@@ -159,7 +130,9 @@ public class RedSideShoot extends LinearOpMode {
                     e.printStackTrace();
                     break;
                 }
-                try { Thread.sleep(20); } catch (InterruptedException ignored) {}
+                try {
+                    Thread.sleep(20);
+                } catch (InterruptedException ignored) {}
             }
         }, "ShooterThread");
         shooterThread.start();
@@ -171,12 +144,16 @@ public class RedSideShoot extends LinearOpMode {
         Thread INTAKEThread = new Thread(() -> {
             while (opModeIsActive() && INTAKE.get()) {
                 try {
-                    if (intake.IntakeON) intake.spin_input.setPower(1);
+                    if (intake.IntakeON) {
+                        intake.spin_input.setPower(1);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     break;
                 }
-                try { Thread.sleep(20); } catch (InterruptedException ignored) {}
+                try {
+                    Thread.sleep(20);
+                } catch (InterruptedException ignored) {}
             }
         }, "intake");
         INTAKEThread.start();
@@ -187,22 +164,34 @@ public class RedSideShoot extends LinearOpMode {
         final AtomicBoolean keepLime = new AtomicBoolean(true);
         Thread limeThread = new Thread(() -> {
             while (opModeIsActive() && keepLime.get()) {
-                try { limeLight.LimeLightOpMode(telemetry, colorTest, "R"); }
-                catch (Exception e) { e.printStackTrace(); break; }
-                try { Thread.sleep(20); } catch (InterruptedException ignored) {}
+                try {
+                    limeLight.LimeLightOpMode(telemetry, colorTest, "B");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    break;
+                }
+                try {
+                    Thread.sleep(20);
+                } catch (InterruptedException ignored) {}
             }
         }, "LimeThread");
         limeThread.start();
 
         // ------------------------------
-        // Flick updater thread
+        // Flick updater thread (runs state machine)
         // ------------------------------
         final AtomicBoolean keepFlick = new AtomicBoolean(true);
         Thread flickThread = new Thread(() -> {
             while (opModeIsActive() && keepFlick.get()) {
-                try { flick.updateAutoBurst(); }
-                catch (Exception e) { e.printStackTrace(); break; }
-                try { Thread.sleep(20); } catch (InterruptedException ignored) {}
+                try {
+                    flick.updateAutoBurst();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    break;
+                }
+                try {
+                    Thread.sleep(20);
+                } catch (InterruptedException ignored) {}
             }
         }, "FlickThread");
         flickThread.start();
